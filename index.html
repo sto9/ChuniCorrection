@@ -51,7 +51,7 @@
 
     <footer class="container-fluid footer">
         <!-- 曲名 & 難易度フォーマット -->
-        <div class="row g-2">
+        <!-- <div class="row g-2">
             <div class="col-12">
                 <label class="form-label" for="music_and_diff_format"> 曲名 & 難易度フォーマット </label>
                 <input type="text" class="form-control" id="music_and_diff_format" minlength="1" maxlength="50"
@@ -60,14 +60,50 @@
             <div class="col-12">
                 <p id="music_and_diff_format_error" style="color:red;"></p>
             </div>
+        </div> -->
+
+        <div class="row g-2">
+            <label for="format-example"> フォーマット例 </label>
+
+            <div class="format-example">
+                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice1"
+                    value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}" checked>
+                <label class="form-check-label" for="format-example-choice1">
+                    [11+]Invitation(MAS)
+                </label>
+            </div>
+            <div class="format-example">
+                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice2"
+                    value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}">
+                <label class="form-check-label" for="format-example-choice2">
+                    Invitation[MAS11+]
+                </label>
+            </div>
+            <div class="format-example">
+                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice3"
+                    value="\{Title}">
+                <label class="form-check-label" for="format-example-choice3">
+                    Invitation
+                </label>
+            </div>
         </div>
+
+        <!-- <div class="row g-2">
+            <div id="format-example-block" class="form-group col-auto" style="display:table-cell">
+                <label for="format-example"> フォーマット例 </label>
+                <select id="format-example" class="form-select">
+                    <option value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}" selected>Invitation[MAS11+]</option>
+                    <option value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
+                        [11+]Invitation(MAS)</option>
+                </select>
+            </div>
+        </div> -->
 
         <!-- 入力 -->
         <div class="row g-2">
             <div class="col-12">
                 <label class="form-label" for="input"> 校正したい文字列 </label>
-                <input type="text" class="form-control" id="input" minlength="1" maxlength="70"
-                    value="Invitation [MAS 11+]">
+                <input type="text" class="form-control" id="input" minlength="1" maxlength="70">
             </div>
             <div class="col-12">
                 <p id="input_error" style="color:red;"></p>

@@ -168,12 +168,12 @@ function getMostSimilarSentence(sentence, musics, format) {
 
             let target_sentence = getTargetSentence(data, format, diff);
             let score = calcDiffScore(sentence, target_sentence);
-            console.log(calcDiffScore(sentence, target_sentence));
+
+            console.log(target_sentence);
 
             let sentence_lower = sentence.toLowerCase();
             let target_sentence_lower = target_sentence.toLowerCase();
             score += calcDiffScore(sentence_lower, target_sentence_lower);
-            console.log(calcDiffScore(sentence_lower, target_sentence_lower));
 
             let sentence_nospecial = sentence.replace(special_regex, "");
             let target_sentence_nospecial = target_sentence.replace(special_regex, "");
@@ -183,7 +183,6 @@ function getMostSimilarSentence(sentence, musics, format) {
             let sentence_nospecial_lower = sentence_nospecial.toLowerCase();
             let target_sentence_nospecial_lower = target_sentence_nospecial.toLowerCase();
             score += calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4;
-            console.log(calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4);
 
             if (score < min_score) {
                 min_score = score;
@@ -208,7 +207,7 @@ function init() {
         loadAllMusicsData();
     }
     let sentence = String(document.getElementById('input').value);
-    let format = String(document.getElementById('music_and_diff_format').value);
+    let format = document.querySelector('input[name="format-example-choice"]:checked')?.value;
     let most_similar_sentence = getMostSimilarSentence(sentence, all_music_data, format);
     document.getElementById('test').textContent = most_similar_sentence;
 }
