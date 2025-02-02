@@ -37,8 +37,8 @@ function isMatchSymbol(s, i, symbol) {
 }
 
 const INSERT_COST = 1;
-const DELETE_COST = 1;
-const CHANGE_COST = 2;
+const DELETE_COST = 2;
+const CHANGE_COST = 3;
 
 // 編集距離
 function calcDiffScore(input_sentence, target_sentence) {
