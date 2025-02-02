@@ -152,5 +152,9 @@ function init() {
     console.log(most_similar_sentence);
 }
 
+function deleteResult() {
+    document.getElementById('test').textContent = "";
+}
+
 
 
