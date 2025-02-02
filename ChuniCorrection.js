@@ -21,9 +21,8 @@ function initOption() {
 
 }
 
-// const DIFFS = ["BAS", "ADV", "EXP", "MAS", "ULT"];
-const DIFFS = ["MAS", "ULT"];
-const DIFFS_OR_EMPTY = ["MAS", "ULT", ""];
+const DIFFS = ["EXP", "MAS", "ULT"];
+const DIFFS_OR_EMPTY = ["EXP", "MAS", "ULT", ""];
 const SYMBOL_TITLE = "\\{Title}";
 const SYMBOL_LEVEL = "\\{Level}";
 const SYMBOL_DIFF_UPPER = "\\{DIFF}";
@@ -31,6 +30,9 @@ const SYMBOL_DIFF_MID = "\\{Diff}";
 const SYMBOL_DIFF_BEGIN = "\\{DiffBegin}";
 const SYMBOL_DIFF_END = "\\{DiffEnd}";
 
+const ULT_LIKE = ["ult"];
+const MAS_LIKE = ["mas"];
+const EXP_LIKE = ["exp"];
 
 function isMatchSymbol(s, i, symbol) {
     return i + symbol.length <= s.length && s.substr(i, symbol.length) === symbol;
@@ -108,13 +110,50 @@ function getTargetSentence(data, format, diff) {
             i++;
         }
     }
-    console.log(target_sentence);
     return target_sentence;
+}
+
+function getMostLikelyDiff(sentence, data) {
+    let lower_title = sentence.toLowerCase();
+    let candidate_diff_and_pos = [];
+    for (let ult_like of ULT_LIKE) {
+        let pos = lower_title.indexOf(ult_like);
+        if (pos !== -1) {
+            candidate_diff_and_pos.push(["ULT", pos]);
+        }
+    }
+    for (let mas_like of MAS_LIKE) {
+        let pos = lower_title.indexOf(mas_like);
+        if (pos !== -1) {
+            candidate_diff_and_pos.push(["MAS", pos]);
+        }
+    }
+    for (let exp_like of EXP_LIKE) {
+        let pos = lower_title.indexOf(exp_like);
+        if (pos !== -1) {
+            candidate_diff_and_pos.push(["EXP", pos]);
+        }
+    }
+
+    if (candidate_diff_and_pos.length !== 0) {
+        // 一番右にあるものを選ぶ
+        candidate_diff_and_pos.sort((a, b) => b[1] - a[1]);
+        let res = candidate_diff_and_pos[0][0];
+        if (data["data"].hasOwnProperty(res)) {
+            return res;
+        }
+    }
+    
+    // 存在しない難易度なら，最も高い難易度を選ぶ
+    if (data["data"].hasOwnProperty("ULT")) {
+        return "ULT";
+    }
+    return "MAS";
 }
 
 function getMostSimilarSentence(sentence, musics, format) {
     let min_score = 1000000;
-    let most_similar_sentence = "";
+    let most_similar_data;
     for (let data of all_music_data) {
         for (let diff of DIFFS_OR_EMPTY) {
             if (diff !== "" && !data["data"].hasOwnProperty(diff)) {
@@ -141,15 +180,14 @@ function getMostSimilarSentence(sentence, musics, format) {
 
             if (score < min_score) {
                 min_score = score;
-                if(diff === ""){
-                    // MAS にする
-                    most_similar_sentence = getTargetSentence(data, format, "MAS");
-                }else{
-                    most_similar_sentence = target_sentence;
-                }
+                most_similar_data = data;
             }
         }
     }
+
+    // 難易度を推定
+    most_like_diff = getMostLikelyDiff(sentence, most_similar_data);
+    let most_similar_sentence = getTargetSentence(most_similar_data, format, most_like_diff);
     return most_similar_sentence;
 }
 
@@ -161,7 +199,6 @@ function init() {
     let format = document.getElementById('music_and_diff_format').value;
     let most_similar_sentence = getMostSimilarSentence(sentence, all_music_data, format);
     document.getElementById('test').textContent = most_similar_sentence;
-    console.log(most_similar_sentence);
 }
 
 function deleteResult() {
