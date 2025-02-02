@@ -135,6 +135,10 @@ function getMostSimilarSentence(sentence, musics, format) {
             let target_sentence_nospace = target_sentence.replace(/[ 　]/g, "");
             score += calcDiffScore(sentence_nospace, target_sentence_nospace);
 
+            let sentence_nospace_lower = sentence_nospace.toLowerCase();
+            let target_sentence_nospace_lower = target_sentence_nospace.toLowerCase();
+            score += calcDiffScore(sentence_nospace_lower, target_sentence_nospace_lower);
+
             if (score < min_score) {
                 min_score = score;
                 if(diff === ""){
