@@ -34,6 +34,9 @@ const ULT_LIKE = ["ult"];
 const MAS_LIKE = ["mas"];
 const EXP_LIKE = ["exp"];
 
+// const special_regex = /[ 　、。,.\[\]\'\"「」()（）《》【】\-～…・:!?！？”]/g;
+const special_regex = /[ 　、。,.［］\[\]'"「」()（）《》【】\-～…・:!?！？]/g;
+
 function isMatchSymbol(s, i, symbol) {
     return i + symbol.length <= s.length && s.substr(i, symbol.length) === symbol;
 }
@@ -143,7 +146,7 @@ function getMostLikelyDiff(sentence, data) {
             return res;
         }
     }
-    
+
     // 存在しない難易度なら，最も高い難易度を選ぶ
     if (data["data"].hasOwnProperty("ULT")) {
         return "ULT";
@@ -165,23 +168,32 @@ function getMostSimilarSentence(sentence, musics, format) {
 
             let target_sentence = getTargetSentence(data, format, diff);
             let score = calcDiffScore(sentence, target_sentence);
+            console.log(calcDiffScore(sentence, target_sentence));
 
             let sentence_lower = sentence.toLowerCase();
             let target_sentence_lower = target_sentence.toLowerCase();
             score += calcDiffScore(sentence_lower, target_sentence_lower);
+            console.log(calcDiffScore(sentence_lower, target_sentence_lower));
 
-            let sentence_nospace = sentence.replace(/[ 　]/g, "");
-            let target_sentence_nospace = target_sentence.replace(/[ 　]/g, "");
-            score += calcDiffScore(sentence_nospace, target_sentence_nospace);
+            let sentence_nospecial = sentence.replace(special_regex, "");
+            let target_sentence_nospecial = target_sentence.replace(special_regex, "");
+            // score += calcDiffScore(sentence_nospecial, target_sentence_nospecial);
+            // console.log(calcDiffScore(sentence_nospecial, target_sentence_nospecial));
 
-            let sentence_nospace_lower = sentence_nospace.toLowerCase();
-            let target_sentence_nospace_lower = target_sentence_nospace.toLowerCase();
-            score += calcDiffScore(sentence_nospace_lower, target_sentence_nospace_lower);
+            let sentence_nospecial_lower = sentence_nospecial.toLowerCase();
+            let target_sentence_nospecial_lower = target_sentence_nospecial.toLowerCase();
+            score += calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4;
+            console.log(calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4);
 
             if (score < min_score) {
                 min_score = score;
                 most_similar_data = data;
             }
+
+            // console.log(sentence);
+            // console.log(target_sentence);
+            // console.log(sentence_nospecial_lower);
+            // console.log(target_sentence_nospecial_lower);
         }
     }
 
@@ -195,8 +207,8 @@ function init() {
     if (all_music_data.length === 0) {
         loadAllMusicsData();
     }
-    let sentence = document.getElementById('input').value;
-    let format = document.getElementById('music_and_diff_format').value;
+    let sentence = String(document.getElementById('input').value);
+    let format = String(document.getElementById('music_and_diff_format').value);
     let most_similar_sentence = getMostSimilarSentence(sentence, all_music_data, format);
     document.getElementById('test').textContent = most_similar_sentence;
 }
@@ -204,6 +216,3 @@ function init() {
 function deleteResult() {
     document.getElementById('test').textContent = "";
 }
-
-
-
