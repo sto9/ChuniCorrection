@@ -1,0 +1,92 @@
+@charset "utf-8";
+
+.row {
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+
+.form-check {
+  margin-left: 0px;
+}
+
+header {
+  padding-left: 60px;
+  padding-top: 10px;
+  background: black;
+  height: 50px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  align-items: center;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.header-logo {
+  float: left;
+  line-height: 50px;
+  vertical-align: auto;
+  z-index: 11;
+}
+
+.header-help {
+  line-height: 50px;
+  vertical-align: auto;
+  z-index: 11;
+}
+
+.header-help:link {
+  text-decoration: none;
+  color: white;
+}
+
+.header-help:visited {
+  text-decoration: none;
+  color: white;
+}
+
+.header-help:active {
+  text-decoration: none;
+  color: white;
+}
+
+.header-help:hover {
+  text-decoration: none;
+  color: white;
+}
+
+.footer {
+  padding-left: 1.2rem;
+  padding-right: 1.2rem;
+}
+
+body {
+  padding-top: 80px;
+}
+
+.table {
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+#thead th,
+#tbody td {
+  padding: .45em .2em;
+}
+
+#thead th {
+  text-align: center;
+}
+
+.text-break {
+  word-wrap: break-word;
+  word-break: break-word;
+}
+
+.accordion-body {
+  padding: 1rem;
+}
+
+#music_count_sentence {
+  margin-bottom: 0;
+}
