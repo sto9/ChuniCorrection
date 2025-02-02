@@ -126,6 +126,11 @@ function getMostSimilarSentence(sentence, musics, format) {
 
             let target_sentence = getTargetSentence(data, format, diff);
             let score = calcDiffScore(sentence, target_sentence);
+
+            let sentence_lower = sentence.toLowerCase();
+            let target_sentence_lower = target_sentence.toLowerCase();
+            score += calcDiffScore(sentence_lower, target_sentence_lower);
+
             if (score < min_score) {
                 min_score = score;
                 if(diff === ""){
