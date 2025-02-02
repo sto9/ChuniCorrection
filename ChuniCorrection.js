@@ -22,7 +22,7 @@ function initOption() {
 }
 
 // const DIFFS = ["BAS", "ADV", "EXP", "MAS", "ULT"];
-const DIFFS = ["EXP", "MAS", "ULT"];
+const DIFFS = ["MAS", "ULT"];
 const SYMBOL_TITLE = "\\{Title}";
 const SYMBOL_LEVEL = "\\{Level}";
 const SYMBOL_DIFF_UPPER = "\\{DIFF}";
