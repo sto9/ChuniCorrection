@@ -35,10 +35,10 @@ const MAS_LIKE = ["mas"];
 const EXP_LIKE = ["exp"];
 
 // const special_regex = /[ 　、。,.\[\]\'\"「」()（）《》【】\-～…・:!?！？”]/g;
-const special_regex = /[ 　、。,.［］『』\[\]'"「」()（）《》【】\-～…・:!?！？+]/g;
-const space_bracket_regex = /[ 　［］\[\]()（）【】]/g;
-const zenkaku_regex = /^[^\x01-\x7E\uFF61-\uFF9F]+$/;
-const alphabet_regex = /^[A-Za-z]*$/;
+const special_regex = /[ 　、。,.［］『』\[\]'"「」()（）《》【】\-～…・:!?！？+]/gu;
+const space_bracket_regex = /[ 　［］\[\]()（）【】]/gu;
+
+const kanji_regex = /[\p{sc=Han}]/gu;
 
 function isMatchSymbol(s, i, symbol) {
     return i + symbol.length <= s.length && s.substr(i, symbol.length) === symbol;
@@ -60,7 +60,7 @@ function charCost(c) {
 }
 
 // 編集距離
-function calcDiffScore(s, t) {
+function Levenshtein(s, t) {
     const n = s.length;
     const m = t.length;
     let cs = [];
@@ -90,6 +90,58 @@ function calcDiffScore(s, t) {
         }
     }
     return dp[n][m];
+}
+
+function calcIntersection(s, t) {
+    function countElements(arr) {
+        const count = new Map();
+        for (const item of arr) {
+            count.set(item, (count.get(item) || 0) + 1);
+        }
+        return count;
+    }
+    s_multiset = countElements(s);
+    t_multiset = countElements(t);
+
+    let intersection_cnt = 0;
+    for (const [key, value1] of s_multiset.entries()) {
+        if (t_multiset.has(key)) {
+            // 最小の出現回数だけ追加
+            const value2 = t_multiset.get(key);
+            const minCount = Math.min(value1, value2);
+            intersection_cnt += minCount;
+        }
+    }
+
+    return intersection_cnt;
+}
+
+function calcDiffScore(s, t) {
+    let score = Levenshtein(s, t);
+
+    let s_lower = s.toLowerCase();
+    let t_lower = t.toLowerCase();
+    score += Levenshtein(s_lower, t_lower);
+
+    let s_nospecial = s.replace(special_regex, "");
+    let t_nospecial = t.replace(special_regex, "");
+    score += Levenshtein(s_nospecial, t_nospecial);
+
+    let s_nospecial_lower = s_nospecial.toLowerCase();
+    let t_nospecial_lower = t_nospecial.toLowerCase();
+    score += Levenshtein(s_nospecial_lower, t_nospecial_lower) * 4;
+
+    let s_only_kanji = s.match(kanji_regex)?.join('') || ''
+    let t_only_kanji = t.match(kanji_regex)?.join('') || ''
+    score -= calcIntersection(s_only_kanji, t_only_kanji) * 100;
+    console.log(score);
+
+    // console.log(s);
+    // console.log(t);
+    // console.log(s_only_kanji);
+    // console.log(t_only_kanji);
+
+    return score;
 }
 
 function getTargetSentence(data, format, diff) {
@@ -197,32 +249,14 @@ function getMostSimilarSentence(sentence, format) {
 
             let target_sentence = getTargetSentence(data, format, diff);
             let score = calcDiffScore(sentence, target_sentence);
-
-            let sentence_lower = sentence.toLowerCase();
-            let target_sentence_lower = target_sentence.toLowerCase();
-            // let score = calcDiffScore(sentence_lower, target_sentence_lower);
-            score += calcDiffScore(sentence_lower, target_sentence_lower);
-
-            let sentence_nospecial = sentence.replace(special_regex, "");
-            let target_sentence_nospecial = target_sentence.replace(special_regex, "");
-            score += calcDiffScore(sentence_nospecial, target_sentence_nospecial);
-            // console.log(calcDiffScore(sentence_nospecial, target_sentence_nospecial));
-
-            let sentence_nospecial_lower = sentence_nospecial.toLowerCase();
-            let target_sentence_nospecial_lower = target_sentence_nospecial.toLowerCase();
-            score += calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4;
-
             if (score < min_score) {
                 min_score = score;
                 most_similar_data = data;
             }
-
-            // console.log(sentence);
-            // console.log(target_sentence);
-            // console.log(sentence_nospecial_lower);
-            // console.log(target_sentence_nospecial_lower);
         }
     }
+
+    console.log(min_score);
 
     // 難易度を推定
     most_like_diff = getMostLikelyDiff(sentence, most_similar_data);
@@ -276,13 +310,13 @@ function resetResult() {
 }
 
 function deleteResult() {
-    let input_multi = document.getElementById('input-multi');
+    // let input_multi = document.getElementById('input-multi');
     let output_multi = document.getElementById('output-multi');
     let arrows_dom = document.getElementById('arrows');
-    input_multi.value = "";
+    // input_multi.value = "";
     output_multi.value = "";
     arrows_dom.innerHTML = "<br><br><br><br>";
-    autoExpand(input_multi);
+    // autoExpand(input_multi);
     autoExpand(output_multi);
 }
 
