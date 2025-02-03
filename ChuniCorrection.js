@@ -35,7 +35,7 @@ const MAS_LIKE = ["mas"];
 const EXP_LIKE = ["exp"];
 
 // const special_regex = /[ 　、。,.\[\]\'\"「」()（）《》【】\-～…・:!?！？”]/g;
-const special_regex = /[ 　、。,.［］\[\]'"「」()（）《》【】\-～…・:!?！？+]/g;
+const special_regex = /[ 　、。,.［］『』\[\]'"「」()（）《》【】\-～…・:!?！？+]/g;
 const space_bracket_regex = /[ 　［］\[\]()（）【】]/g;
 const zenkaku_regex = /^[^\x01-\x7E\uFF61-\uFF9F]+$/;
 const alphabet_regex = /^[A-Za-z]*$/;
@@ -53,7 +53,7 @@ function charCost(c) {
         return 20;
     } else if (alphabet_regex.test(c)) {
         return 15;
-    } else{
+    } else {
         return 10;
     }
 }
@@ -74,7 +74,7 @@ function calcDiffScore(s, t) {
     for (let j = 0; j < m; j++) dp[0][j + 1] = dp[0][j] + ct[j];
     for (let i = 1; i <= n; i++) {
         for (let j = 1; j <= m; j++) {
-            let D = dp[i - 1][j] + cs[i - 1] * 2;
+            let D = dp[i - 1][j] + cs[i - 1];
             let I = dp[i][j - 1] + ct[j - 1];
             let C = dp[i - 1][j - 1];
             if (s[i - 1] !== t[j - 1]) {
