@@ -45,17 +45,18 @@ function isMatchSymbol(s, i, symbol) {
 }
 
 function charCost(c) {
-    if (space_bracket_regex.test(c)) {
-        return 1;
-    } else if (special_regex.test(c)) {
-        return 2;
-    } else if (zenkaku_regex.test(c)) {
-        return 20;
-    } else if (alphabet_regex.test(c)) {
-        return 15;
-    } else {
-        return 10;
-    }
+    return 1;
+    // if (space_bracket_regex.test(c)) {
+    //     return 1;
+    // } else if (special_regex.test(c)) {
+    //     return 2;
+    // } else if (zenkaku_regex.test(c)) {
+    //     return 20;
+    // } else if (alphabet_regex.test(c)) {
+    //     return 15;
+    // } else {
+    //     return 10;
+    // }
 }
 
 // 編集距離
@@ -70,19 +71,20 @@ function calcDiffScore(s, t) {
         ct.push(charCost(t[i]));
 
     let dp = new Array(n + 1).fill(0).map(() => new Array(m + 1).fill(0));
-    for (let i = 0; i < n; i++) dp[i + 1][0] = dp[i][0] + cs[i];
+    for (let i = 0; i < n; i++) dp[i + 1][0] = dp[i][0] + cs[i] * 2;
     for (let j = 0; j < m; j++) dp[0][j + 1] = dp[0][j] + ct[j];
     for (let i = 1; i <= n; i++) {
         for (let j = 1; j <= m; j++) {
-            let D = dp[i - 1][j] + cs[i - 1];
+            let D = dp[i - 1][j] + cs[i - 1] * 2;
             let I = dp[i][j - 1] + ct[j - 1];
             let C = dp[i - 1][j - 1];
             if (s[i - 1] !== t[j - 1]) {
-                if (s[i - 1].toLowerCase() === t[j - 1].toLowerCase()) {
-                    C += 5;
-                } else {
-                    C += Math.max(cs[i - 1], ct[j - 1]);
-                }
+                C += Math.max(cs[i - 1], ct[j - 1]);
+                // if (s[i - 1].toLowerCase() === t[j - 1].toLowerCase()) {
+                //     C += 5;
+                // } else {
+                //     C += Math.max(cs[i - 1], ct[j - 1]);
+                // }
             }
             dp[i][j] = Math.min(D, I, C);
         }
@@ -196,19 +198,19 @@ function getMostSimilarSentence(sentence, format) {
             let target_sentence = getTargetSentence(data, format, diff);
             let score = calcDiffScore(sentence, target_sentence);
 
-            // let sentence_lower = sentence.toLowerCase();
-            // let target_sentence_lower = target_sentence.toLowerCase();
-            // // let score = calcDiffScore(sentence_lower, target_sentence_lower);
-            // score += calcDiffScore(sentence_lower, target_sentence_lower);
+            let sentence_lower = sentence.toLowerCase();
+            let target_sentence_lower = target_sentence.toLowerCase();
+            // let score = calcDiffScore(sentence_lower, target_sentence_lower);
+            score += calcDiffScore(sentence_lower, target_sentence_lower);
 
-            // let sentence_nospecial = sentence.replace(special_regex, "");
-            // let target_sentence_nospecial = target_sentence.replace(special_regex, "");
-            // // score += calcDiffScore(sentence_nospecial, target_sentence_nospecial);
-            // // console.log(calcDiffScore(sentence_nospecial, target_sentence_nospecial));
+            let sentence_nospecial = sentence.replace(special_regex, "");
+            let target_sentence_nospecial = target_sentence.replace(special_regex, "");
+            score += calcDiffScore(sentence_nospecial, target_sentence_nospecial);
+            // console.log(calcDiffScore(sentence_nospecial, target_sentence_nospecial));
 
-            // let sentence_nospecial_lower = sentence_nospecial.toLowerCase();
-            // let target_sentence_nospecial_lower = target_sentence_nospecial.toLowerCase();
-            // score += calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4;
+            let sentence_nospecial_lower = sentence_nospecial.toLowerCase();
+            let target_sentence_nospecial_lower = target_sentence_nospecial.toLowerCase();
+            score += calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4;
 
             if (score < min_score) {
                 min_score = score;
