@@ -38,6 +38,7 @@ const EXP_LIKE = ["exp"];
 const special_regex = /[ 　、。,.［］\[\]'"「」()（）《》【】\-～…・:!?！？+]/g;
 const space_bracket_regex = /[ 　［］\[\]()（）【】]/g;
 const zenkaku_regex = /^[^\x01-\x7E\uFF61-\uFF9F]+$/;
+const alphabet_regex = /^[A-Za-z]*$/;
 
 function isMatchSymbol(s, i, symbol) {
     return i + symbol.length <= s.length && s.substr(i, symbol.length) === symbol;
@@ -50,8 +51,10 @@ function charCost(c) {
         return 2;
     } else if (zenkaku_regex.test(c)) {
         return 20;
-    } else {
+    } else if (alphabet_regex.test(c)) {
         return 15;
+    } else{
+        return 10;
     }
 }
 
@@ -75,7 +78,11 @@ function calcDiffScore(s, t) {
             let I = dp[i][j - 1] + ct[j - 1];
             let C = dp[i - 1][j - 1];
             if (s[i - 1] !== t[j - 1]) {
-                C += Math.max(cs[i - 1], ct[j - 1]);
+                if (s[i - 1].toLowerCase() === t[j - 1].toLowerCase()) {
+                    C += 5;
+                } else {
+                    C += Math.max(cs[i - 1], ct[j - 1]);
+                }
             }
             dp[i][j] = Math.min(D, I, C);
         }
