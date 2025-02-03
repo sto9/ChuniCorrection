@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta charset="utf-8">
 
-    <title>ChuniCorrection</title>
+    <title>音ゲー曲の表記揺れ直すやつ</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -33,7 +33,7 @@
             <div class="col-auto">
                 <h1>
                     <font face="Verdana">
-                        <b class="header-logo">ChuniCorrection</b>
+                        <b class="header-logo">音ゲー曲の表記揺れ直すやつ</b>
                     </font>
                 </h1>
             </div>
@@ -46,7 +46,6 @@
             </div>
 
         </div>
-
     </header>
 
     <footer class="container-fluid footer">
@@ -63,26 +62,33 @@
         </div> -->
 
         <div class="row g-2">
-            <label for="format-example"> フォーマット例 </label>
+            <label for="format-example"><b>フォーマット例</b></label>
 
             <div class="format-example">
-                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice1"
-                    value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}" checked>
-                <label class="form-check-label" for="format-example-choice1">
+                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-lstd"
+                    value="\{DiffBegin}[\{Level}] \{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}" checked>
+                <label class="form-check-label" for="format-example-choice-lstd">
+                    [11+] Invitation(MAS)
+                </label>
+            </div>
+            <div class="format-example">
+                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-ltd"
+                    value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
+                <label class="form-check-label" for="format-example-choice-ltd">
                     [11+]Invitation(MAS)
                 </label>
             </div>
             <div class="format-example">
-                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice2"
+                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-tdl"
                     value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}">
-                <label class="form-check-label" for="format-example-choice2">
+                <label class="form-check-label" for="format-example-choice-tdl">
                     Invitation[MAS11+]
                 </label>
             </div>
             <div class="format-example">
-                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice3"
+                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-t"
                     value="\{Title}">
-                <label class="form-check-label" for="format-example-choice3">
+                <label class="form-check-label" for="format-example-choice-t">
                     Invitation
                 </label>
             </div>
@@ -99,8 +105,37 @@
             </div>
         </div> -->
 
-        <!-- 入力 -->
         <div class="row g-2">
+            <!-- 左側のテキストボックス -->
+            <div class="col-5">
+                <label for="input-multi" class="form-label"><b>入力欄</b></label>
+                <textarea id="input-multi" class="form-control" rows="4"></textarea>
+            </div>
+            <!-- 中央のテキストボックス -->
+            <div class="col-auto">
+                <label for="arrows" class="form-label no-border" style="visibility:hidden">-</label>
+                <p id="arrows" class="text-center form-control"><br><br><br><br></p>
+            </div>
+            <!-- 右側のテキストボックス -->
+            <div class="col-5">
+                <label for="output-multi" class="form-label"><b>出力欄</b></label>
+                <textarea id="output-multi" class="form-control" rows="4" readonly></textarea>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const textareas = document.querySelectorAll("textarea");
+                textareas.forEach(textarea => {
+                    textarea.addEventListener("input", function() {
+                        autoExpand(this);
+                    });
+                });
+            });
+        </script>
+
+        <!-- 入力 -->
+        <!-- <div class="row g-2">
             <div class="col-12">
                 <label class="form-label" for="input"> 校正したい文字列 </label>
                 <input type="text" class="form-control" id="input" minlength="1" maxlength="70">
@@ -108,7 +143,7 @@
             <div class="col-12">
                 <p id="input_error" style="color:red;"></p>
             </div>
-        </div>
+        </div> -->
 
         <div class="row">
             <div class="col-auto">
@@ -121,7 +156,7 @@
 
         <div class="row">
             <div class="col-12">
-                <p id="test">aaaaa</p>
+                <p id="test"></p>
             </div>
         </div>
 

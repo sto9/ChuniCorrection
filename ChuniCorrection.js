@@ -35,28 +35,48 @@ const MAS_LIKE = ["mas"];
 const EXP_LIKE = ["exp"];
 
 // const special_regex = /[ 　、。,.\[\]\'\"「」()（）《》【】\-～…・:!?！？”]/g;
-const special_regex = /[ 　、。,.［］\[\]'"「」()（）《》【】\-～…・:!?！？]/g;
+const special_regex = /[ 　、。,.［］\[\]'"「」()（）《》【】\-～…・:!?！？+]/g;
+const space_bracket_regex = /[ 　［］\[\]()（）【】]/g;
+const zenkaku_regex = /^[^\x01-\x7E\uFF61-\uFF9F]+$/;
 
 function isMatchSymbol(s, i, symbol) {
     return i + symbol.length <= s.length && s.substr(i, symbol.length) === symbol;
 }
 
-const INSERT_COST = 1;
-const DELETE_COST = 2;
-const CHANGE_COST = 1;
+function charCost(c) {
+    if (space_bracket_regex.test(c)) {
+        return 1;
+    } else if (special_regex.test(c)) {
+        return 2;
+    } else if (zenkaku_regex.test(c)) {
+        return 20;
+    } else {
+        return 15;
+    }
+}
 
 // 編集距離
-function calcDiffScore(input_sentence, target_sentence) {
-    const n = input_sentence.length;
-    const m = target_sentence.length;
+function calcDiffScore(s, t) {
+    const n = s.length;
+    const m = t.length;
+    let cs = [];
+    let ct = [];
+    for (let i = 0; i < n; i++)
+        cs.push(charCost(s[i]));
+    for (let i = 0; i < m; i++)
+        ct.push(charCost(t[i]));
+
     let dp = new Array(n + 1).fill(0).map(() => new Array(m + 1).fill(0));
-    for (let i = 0; i <= n; i++) dp[i][0] = i * INSERT_COST;
-    for (let j = 0; j <= m; j++) dp[0][j] = j * INSERT_COST;
+    for (let i = 0; i < n; i++) dp[i + 1][0] = dp[i][0] + cs[i];
+    for (let j = 0; j < m; j++) dp[0][j + 1] = dp[0][j] + ct[j];
     for (let i = 1; i <= n; i++) {
         for (let j = 1; j <= m; j++) {
-            let D = dp[i - 1][j] + DELETE_COST;
-            let I = dp[i][j - 1] + INSERT_COST;
-            let C = dp[i - 1][j - 1] + (input_sentence[i - 1] !== target_sentence[j - 1] ? CHANGE_COST : 0);
+            let D = dp[i - 1][j] + cs[i - 1] * 2;
+            let I = dp[i][j - 1] + ct[j - 1];
+            let C = dp[i - 1][j - 1];
+            if (s[i - 1] !== t[j - 1]) {
+                C += Math.max(cs[i - 1], ct[j - 1]);
+            }
             dp[i][j] = Math.min(D, I, C);
         }
     }
@@ -154,7 +174,7 @@ function getMostLikelyDiff(sentence, data) {
     return "MAS";
 }
 
-function getMostSimilarSentence(sentence, musics, format) {
+function getMostSimilarSentence(sentence, format) {
     let min_score = 1000000;
     let most_similar_data;
     for (let data of all_music_data) {
@@ -169,20 +189,19 @@ function getMostSimilarSentence(sentence, musics, format) {
             let target_sentence = getTargetSentence(data, format, diff);
             let score = calcDiffScore(sentence, target_sentence);
 
-            console.log(target_sentence);
+            // let sentence_lower = sentence.toLowerCase();
+            // let target_sentence_lower = target_sentence.toLowerCase();
+            // // let score = calcDiffScore(sentence_lower, target_sentence_lower);
+            // score += calcDiffScore(sentence_lower, target_sentence_lower);
 
-            let sentence_lower = sentence.toLowerCase();
-            let target_sentence_lower = target_sentence.toLowerCase();
-            score += calcDiffScore(sentence_lower, target_sentence_lower);
+            // let sentence_nospecial = sentence.replace(special_regex, "");
+            // let target_sentence_nospecial = target_sentence.replace(special_regex, "");
+            // // score += calcDiffScore(sentence_nospecial, target_sentence_nospecial);
+            // // console.log(calcDiffScore(sentence_nospecial, target_sentence_nospecial));
 
-            let sentence_nospecial = sentence.replace(special_regex, "");
-            let target_sentence_nospecial = target_sentence.replace(special_regex, "");
-            // score += calcDiffScore(sentence_nospecial, target_sentence_nospecial);
-            // console.log(calcDiffScore(sentence_nospecial, target_sentence_nospecial));
-
-            let sentence_nospecial_lower = sentence_nospecial.toLowerCase();
-            let target_sentence_nospecial_lower = target_sentence_nospecial.toLowerCase();
-            score += calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4;
+            // let sentence_nospecial_lower = sentence_nospecial.toLowerCase();
+            // let target_sentence_nospecial_lower = target_sentence_nospecial.toLowerCase();
+            // score += calcDiffScore(sentence_nospecial_lower, target_sentence_nospecial_lower) * 4;
 
             if (score < min_score) {
                 min_score = score;
@@ -202,16 +221,63 @@ function getMostSimilarSentence(sentence, musics, format) {
     return most_similar_sentence;
 }
 
+function setArrowHtml(sentence, result) {
+    let arrows_dom = document.getElementById('arrows');
+    if (sentence !== result) {
+        let sentence_nospace = sentence.replace(space_bracket_regex, "");
+        let result_nospace = result.replace(space_bracket_regex, "");
+        if (sentence_nospace === result_nospace) {
+            arrows_dom.innerHTML += "►";
+        } else {
+            arrows_dom.innerHTML += "<font color='red'>►</font>";
+        }
+    }
+    arrows_dom.innerHTML += "<br>";
+}
+
 function init() {
     if (all_music_data.length === 0) {
         loadAllMusicsData();
     }
-    let sentence = String(document.getElementById('input').value);
+    let sentence_array_origin = String(document.getElementById('input-multi').value);
+    let sentence_array = sentence_array_origin.split("\n");
     let format = document.querySelector('input[name="format-example-choice"]:checked')?.value;
-    let most_similar_sentence = getMostSimilarSentence(sentence, all_music_data, format);
-    document.getElementById('test').textContent = most_similar_sentence;
+
+    resetResult();
+    let output_multi = document.getElementById('output-multi');
+
+    for (let sentence of sentence_array) {
+        let result = "";
+        if (sentence !== "") {
+            result = getMostSimilarSentence(sentence, format);
+        }
+        output_multi.value += result + "\n";
+        setArrowHtml(sentence, result);
+    }
+    output_multi.value = output_multi.value.slice(0, -1);
+    autoExpand(output_multi);
+}
+
+function resetResult() {
+    let output_multi = document.getElementById('output-multi');
+    let arrows_dom = document.getElementById('arrows');
+    output_multi.value = "";
+    arrows_dom.innerHTML = "";
+    autoExpand(output_multi);
 }
 
 function deleteResult() {
-    document.getElementById('test').textContent = "";
+    let input_multi = document.getElementById('input-multi');
+    let output_multi = document.getElementById('output-multi');
+    let arrows_dom = document.getElementById('arrows');
+    input_multi.value = "";
+    output_multi.value = "";
+    arrows_dom.innerHTML = "<br><br><br><br>";
+    autoExpand(input_multi);
+    autoExpand(output_multi);
+}
+
+function autoExpand(textarea) {
+    textarea.style.height = "auto"; // 高さをリセット
+    textarea.style.height = textarea.scrollHeight + "px"; // 必要な高さに調整
 }

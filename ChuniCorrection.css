@@ -90,3 +90,16 @@ body {
 #music_count_sentence {
   margin-bottom: 0;
 }
+
+textarea {
+  resize: none; /* ユーザーによるリサイズを無効化 */
+  overflow: hidden; /* スクロールバーを非表示に */
+  white-space: pre;
+  overflow-x: auto; /* 横スクロールを有効化 */
+  /* word-wrap: normal; 強制改行を防ぐ */
+}
+
+.no-border{
+  border: none;
+  outline: 0;
+}
