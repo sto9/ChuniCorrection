@@ -133,7 +133,8 @@ function calcDiffScore(s, t) {
 
     let s_only_kanji = s.match(kanji_regex)?.join('') || ''
     let t_only_kanji = t.match(kanji_regex)?.join('') || ''
-    score -= calcIntersection(s_only_kanji, t_only_kanji) * 100;
+    let isc_cnt = calcIntersection(s_only_kanji, t_only_kanji);
+    score -= isc_cnt * isc_cnt * 100;
     console.log(score);
 
     // console.log(s);
