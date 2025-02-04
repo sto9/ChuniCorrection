@@ -264,7 +264,7 @@ function getMostSimilarSentence(sentence, format) {
     return most_similar_sentence;
 }
 
-function setArrowHtml(sentence, result) {
+function setArrowHtmlSingle(sentence, result) {
     let arrows_dom = document.getElementById('arrows');
     if (sentence !== result) {
         let sentence_nospace = sentence.replace(space_bracket_regex, "");
@@ -278,6 +278,17 @@ function setArrowHtml(sentence, result) {
     arrows_dom.innerHTML += "<br>";
 }
 
+function setArrowHtml(sentences, results) {
+    for (let i = 0; i < sentences.length; i++) {
+        setArrowHtmlSingle(sentences[i], results[i]);
+    }
+    if(sentences.length <= 4) {
+        for(let i = sentences.length; i < 4; i++) {
+            document.getElementById('arrows').innerHTML += "<br>";
+        }
+    }
+}
+
 function init() {
     if (all_music_data.length === 0) {
         loadAllMusicsData();
@@ -289,14 +300,16 @@ function init() {
     resetResult();
     let output_multi = document.getElementById('output-multi');
 
+    let result_array = [];
     for (let sentence of sentence_array) {
         let result = "";
         if (sentence !== "") {
             result = getMostSimilarSentence(sentence, format);
         }
         output_multi.value += result + "\n";
-        setArrowHtml(sentence, result);
+        result_array.push(result);
     }
+    setArrowHtml(sentence_array, result_array);
     output_multi.value = output_multi.value.slice(0, -1);
     autoExpand(output_multi);
 }
