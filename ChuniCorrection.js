@@ -1,3 +1,20 @@
+function switchLayout(direc) {
+    if (direc === "yoko") {
+        document.getElementById('in-out-yoko').style.display = "flex";
+        document.getElementById('in-out-tate').style.display = "none";
+
+    } else if (direc === "tate") {
+        document.getElementById('in-out-tate').style.display = "block";
+        document.getElementById('in-out-yoko').style.display = "none";
+    } else {
+        console.log("switchLayout error");
+    }
+    output_multis = document.getElementsByClassName('output-multi');
+    for (let i = 0; i < output_multis.length; i++) {
+        autoExpand(output_multis[i]);
+    }
+}
+
 let all_music_data = [];
 
 async function loadAllMusicsData() {
@@ -14,11 +31,6 @@ function loadCookie() {
 // 設定を保存
 function saveCookie() {
     // 後で書く
-}
-
-// 設定を初期化
-function initOption() {
-
 }
 
 const DIFFS = ["EXP", "MAS", "ULT"];
@@ -135,7 +147,6 @@ function calcDiffScore(s, t) {
     let t_only_kanji = t.match(kanji_regex)?.join('') || ''
     let isc_cnt = calcIntersection(s_only_kanji, t_only_kanji);
     score -= isc_cnt * isc_cnt * 100;
-    console.log(score);
 
     // console.log(s);
     // console.log(t);
@@ -257,8 +268,6 @@ function getMostSimilarSentence(sentence, format) {
         }
     }
 
-    console.log(min_score);
-
     // 難易度を推定
     most_like_diff = getMostLikelyDiff(sentence, most_similar_data);
     let most_similar_sentence = getTargetSentence(most_similar_data, format, most_like_diff);
@@ -283,8 +292,8 @@ function setArrowHtml(sentences, results) {
     for (let i = 0; i < sentences.length; i++) {
         setArrowHtmlSingle(sentences[i], results[i]);
     }
-    if(sentences.length <= 4) {
-        for(let i = sentences.length; i < 4; i++) {
+    if (sentences.length <= 4) {
+        for (let i = sentences.length; i < 4; i++) {
             document.getElementById('arrows').innerHTML += "<br>";
         }
     }
@@ -294,12 +303,18 @@ function init() {
     if (all_music_data.length === 0) {
         loadAllMusicsData();
     }
-    let sentence_array_origin = String(document.getElementById('input-multi').value);
+    let inputs = Array.from(document.querySelectorAll('.input-multi'))
+        .filter(el => el.offsetParent !== null);
+    console.assert(inputs.length === 1);
+    let sentence_array_origin = String(inputs[0].value);
     let sentence_array = sentence_array_origin.split("\n");
     let format = document.querySelector('input[name="format-example-choice"]:checked')?.value;
 
     resetResult();
-    let output_multi = document.getElementById('output-multi');
+    let output_tmp = Array.from(document.querySelectorAll('.output-multi'))
+        .filter(el => el.offsetParent !== null);
+    console.assert(output_tmp.length === 1);
+    let output_multi = output_tmp[0];
 
     let result_array = [];
     for (let sentence of sentence_array) {
@@ -310,28 +325,35 @@ function init() {
         output_multi.value += result + "\n";
         result_array.push(result);
     }
-    setArrowHtml(sentence_array, result_array);
+    if (document.querySelector('input[name="layout-choice"]:checked')?.value === "yoko") {
+        setArrowHtml(sentence_array, result_array);
+    }
     output_multi.value = output_multi.value.slice(0, -1);
     autoExpand(output_multi);
 }
 
 function resetResult() {
-    let output_multi = document.getElementById('output-multi');
-    let arrows_dom = document.getElementById('arrows');
+    let output_tmp = Array.from(document.querySelectorAll('.output-multi'))
+        .filter(el => el.offsetParent !== null);
+    console.assert(output_tmp.length === 1);
+    let output_multi = output_tmp[0];
     output_multi.value = "";
-    arrows_dom.innerHTML = "";
     autoExpand(output_multi);
+    if (document.querySelector('input[name="layout-choice"]:checked')?.value === "yoko") {
+        let arrows_dom = document.getElementById('arrows');
+        arrows_dom.innerHTML = "";
+    }
 }
 
 function deleteResult() {
-    // let input_multi = document.getElementById('input-multi');
-    let output_multi = document.getElementById('output-multi');
+    let output_multis = document.getElementsByClassName('output-multi');
+    for(let i = 0; i < output_multis.length; i++) {
+        output_multis[i].value = "";
+        autoExpand(output_multis[i]);
+    }
+
     let arrows_dom = document.getElementById('arrows');
-    // input_multi.value = "";
-    output_multi.value = "";
     arrows_dom.innerHTML = "<br><br><br><br>";
-    // autoExpand(input_multi);
-    autoExpand(output_multi);
 }
 
 function autoExpand(textarea) {

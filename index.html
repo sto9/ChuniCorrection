@@ -63,71 +63,96 @@
 
         <div class="row g-2">
             <label for="format-example"><b>フォーマット</b></label>
-
             <div class="format-example">
                 <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-t"
                     value="\{Title}" checked>
                 <label class="form-check-label" for="format-example-choice-t">
-                    怒槌
+                    コスモポップファンクラブ
                 </label>
             </div>
             <div class="format-example">
-                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-lstd"
+                <input class="form-check-input" type="radio" name="format-example-choice"
+                    id="format-example-choice-lstd"
                     value="\{DiffBegin}[\{Level}] \{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
                 <label class="form-check-label" for="format-example-choice-lstd">
-                    [15] 怒槌(MAS)
+                    [12] コスモポップファンクラブ(MAS)
                 </label>
             </div>
             <div class="format-example">
                 <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-ltd"
                     value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
                 <label class="form-check-label" for="format-example-choice-ltd">
-                    [15]怒槌(MAS)
+                    [12]コスモポップファンクラブ(MAS)
                 </label>
             </div>
             <div class="format-example">
                 <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-tdl"
                     value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}">
                 <label class="form-check-label" for="format-example-choice-tdl">
-                    怒槌[MAS15]
+                    コスモポップファンクラブ[MAS12]
                 </label>
             </div>
         </div>
 
-        <!-- <div class="row g-2">
-            <div id="format-example-block" class="form-group col-auto" style="display:table-cell">
-                <label for="format-example"> フォーマット例 </label>
-                <select id="format-example" class="form-select">
-                    <option value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}" selected>Invitation[MAS11+]</option>
-                    <option value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
-                        [11+]Invitation(MAS)</option>
-                </select>
-            </div>
-        </div> -->
+        <div class="mb-2">
+            <label class="mb-2" for="layout"><b>レイアウト</b></label>
+            <div class="d-flex">
+                <div class="form-check form-check-inline layout">
+                    <input class="form-check-input" type="radio" name="layout-choice" id="layout-tate" value="tate"
+                        checked onclick="switchLayout('tate');">
+                    <label class="form-check-label" for="layout-tate">上下(スマホ推奨)</label>
+                </div>
 
-        <div class="row g-2">
+                <div class="form-check form-check-inline layout">
+                    <input class="form-check-input" type="radio" name="layout-choice" id="layout-yoko" value="yoko"
+                        onclick="switchLayout('yoko');">
+                    <label class="form-check-label" for="layout-yoko">左右(PC推奨)</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 縦並びの場合 -->
+        <div id="in-out-tate">
+            <!-- 上側のテキストボックス -->
+            <div class="row g-2">
+                <div class="col-12">
+                    <label for="input-multi-tate" class="form-label"><b>修正前</b></label>
+                    <textarea id="input-multi-tate" class="form-control input-multi" rows="4"></textarea>
+                </div>
+            </div>
+            <!-- 下側のテキストボックス -->
+            <div class="row g-2">
+                <div class="col-12">
+                    <label for="output-multi-tate" class="form-label"><b>修正後</b></label>
+                    <textarea id="output-multi-tate" class="form-control output-multi" rows="4" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 横並びの場合 -->
+        <div id="in-out-yoko" class="row g-2" style="display:none">
             <!-- 左側のテキストボックス -->
             <div class="col-5">
-                <label for="input-multi" class="form-label"><b>修正前</b></label>
-                <textarea id="input-multi" class="form-control" rows="4"></textarea>
+                <label for="input-multi-yoko" class="form-label"><b>修正前</b></label>
+                <textarea id="input-multi-yoko" class="form-control input-multi" rows="4"></textarea>
             </div>
             <!-- 中央のテキストボックス -->
             <div class="col-auto">
                 <label for="arrows" class="form-label no-border" style="visibility:hidden">-</label>
-                <p id="arrows" class="text-center form-control"><br><br><br><br></p>
+                <p id="arrows" class="text-center form-control arrows"><br><br><br><br></p>
             </div>
             <!-- 右側のテキストボックス -->
             <div class="col-5">
-                <label for="output-multi" class="form-label"><b>修正後</b></label>
-                <textarea id="output-multi" class="form-control" rows="4" readonly></textarea>
+                <label for="output-multi-yoko" class="form-label"><b>修正後</b></label>
+                <textarea id="output-multi-yoko" class="form-control output-multi" rows="4" readonly></textarea>
             </div>
         </div>
 
         <script>
-            document.addEventListener("DOMContentLoaded", function() {
+            document.addEventListener("DOMContentLoaded", function () {
                 const textareas = document.querySelectorAll("textarea");
                 textareas.forEach(textarea => {
-                    textarea.addEventListener("input", function() {
+                    textarea.addEventListener("input", function () {
                         autoExpand(this);
                     });
                 });
