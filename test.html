@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タブ型ページ切り替え</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="p-4">
+
+    <!-- タブメニュー -->
+    <ul class="nav nav-pills mb-3" id="pageTabs">
+        <li class="nav-item">
+            <button class="nav-link active" data-target="#page1">ページ 1</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" data-target="#page2">ページ 2</button>
+        </li>
+    </ul>
+
+    <!-- ページ内容 -->
+    <div class="container">
+        <div id="page1" class="page-content">
+            <h2>ページ 1</h2>
+            <p>これはページ 1 の内容です。</p>
+        </div>
+        <div id="page2" class="page-content d-none">
+            <h2>ページ 2</h2>
+            <p>これはページ 2 の内容です。</p>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll(".nav-link").forEach(button => {
+            button.addEventListener("click", function () {
+                document.querySelectorAll(".page-content").forEach(page => page.classList.add("d-none"));
+                document.querySelector(button.dataset.target).classList.remove("d-none");
+                document.querySelectorAll(".nav-link").forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+            });
+        });
+    </script>
+
+</body>
+</html>
