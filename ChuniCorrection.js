@@ -8,6 +8,7 @@ function switchLayout(direc) {
         document.getElementById('in-out-yoko').style.display = "none";
     } else {
         console.log("switchLayout error");
+        console.assert(false);
     }
     output_multis = document.getElementsByClassName('output-multi');
     for (let i = 0; i < output_multis.length; i++) {
@@ -15,12 +16,42 @@ function switchLayout(direc) {
     }
 }
 
-let all_music_data = [];
+const GAMEMODE_CHUNITHM = 0;
+const GAMEMODE_SDVX = 1;
+const DIFFS = [["EXP", "MAS", "ULT"], ["EXH", "MXM", "INF", "GRV", "HVN", "VVD", "XCD"]];
 
-async function loadAllMusicsData() {
-    const URL = "https://api.chunirec.net/2.0/music/showall.json?region=jp2&token=0cc61074c6f6ccf038b3c62be917be3ef317458be49bd3cd68c78a80b4d024b144db12e7f941a8c043f3ac8b4b0c610740e8960baf53f5469de414d6588fa6b5";
-    const res = await fetch(URL);
-    all_music_data = await res.json();
+function switchFormatExample(gamemode) {
+    if (gamemode === GAMEMODE_CHUNITHM) {
+
+    }
+}
+
+let all_music_data = [[], []];
+
+async function loadAllMusicsData(gamemode) {
+    if (gamemode === 0) {
+        const URL = "https://api.chunirec.net/2.0/music/showall.json?region=jp2&token=0cc61074c6f6ccf038b3c62be917be3ef317458be49bd3cd68c78a80b4d024b144db12e7f941a8c043f3ac8b4b0c610740e8960baf53f5469de414d6588fa6b5";
+        const res = await fetch(URL);
+        musics_json = await res.json();
+        for (let data of musics_json) {
+            if (Object.keys(data["data"]).includes("WE"))
+                continue;
+
+            levels_json = { ...Object.fromEntries(DIFFS.map(diff => [diff, { level: data["data"][diff]["level"] }])) };
+
+
+            all_music_data[0].push({
+                title: data["title"],
+
+            });
+        }
+    } else if (gamemode === 1) {
+
+    } else {
+        console.log("loadAllMusicsData error");
+        console.assert(false);
+    }
+
 }
 
 // クッキーを読み込み、設定を反映
@@ -33,7 +64,6 @@ function saveCookie() {
     // 後で書く
 }
 
-const DIFFS = ["EXP", "MAS", "ULT"];
 const DIFFS_OR_EMPTY = ["EXP", "MAS", "ULT", ""];
 const SYMBOL_TITLE = "\\{Title}";
 const SYMBOL_LEVEL = "\\{Level}";
@@ -347,7 +377,7 @@ function resetResult() {
 
 function deleteResult() {
     let output_multis = document.getElementsByClassName('output-multi');
-    for(let i = 0; i < output_multis.length; i++) {
+    for (let i = 0; i < output_multis.length; i++) {
         output_multis[i].value = "";
         autoExpand(output_multis[i]);
     }

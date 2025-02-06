@@ -47,7 +47,26 @@
         </div>
     </header>
 
-    
+    <!-- タブメニュー -->
+    <ul class="nav nav-pills mb-3" id="pageTabs">
+        <li class="nav-item">
+            <button class="nav-link gamemode active" value="chunithm">CHUNITHM</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link gamemode" value="sdvx">SDVX</button>
+        </li>
+    </ul>
+
+    <script>
+        document.querySelectorAll(".nav-link").forEach(button => {
+            button.addEventListener("click", function () {
+                document.querySelectorAll(".nav-link").forEach(btn => btn.classList.remove("active"));
+                button.classList.add("active");
+                
+            });
+        });
+    </script>
+
 
     <footer class="container-fluid footer">
         <!-- 曲名 & 難易度フォーマット -->
@@ -61,37 +80,75 @@
                 <p id="music_and_diff_format_error" style="color:red;"></p>
             </div>
         </div> -->
+        <div id="page-chunithm" class="page-content">
+            <div class="row g-2">
+                <label for="format-example"><b>フォーマット</b></label>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-t" value="\{Title}" checked>
+                    <label class="form-check-label format-example-label" for="format-example-choice-t">
+                        コスモポップファンクラブ
+                    </label>
+                </div>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-lstd"
+                        value="\{DiffBegin}[\{Level}] \{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
+                    <label class="form-check-label format-example-label" for="format-example-choice-lstd">
+                        [12] コスモポップファンクラブ(MAS)
+                    </label>
+                </div>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-ltd"
+                        value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
+                    <label class="form-check-label format-example-label" for="format-example-choice-ltd">
+                        [12]コスモポップファンクラブ(MAS)
+                    </label>
+                </div>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-tdl" value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}">
+                    <label class="form-check-label format-example-label" for="format-example-choice-tdl">
+                        コスモポップファンクラブ[MAS12]
+                    </label>
+                </div>
+            </div>
+        </div>
 
-        <div class="row g-2">
-            <label for="format-example"><b>フォーマット</b></label>
-            <div class="format-example">
-                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-t"
-                    value="\{Title}" checked>
-                <label class="form-check-label" for="format-example-choice-t">
-                    コスモポップファンクラブ
-                </label>
-            </div>
-            <div class="format-example">
-                <input class="form-check-input" type="radio" name="format-example-choice"
-                    id="format-example-choice-lstd"
-                    value="\{DiffBegin}[\{Level}] \{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
-                <label class="form-check-label" for="format-example-choice-lstd">
-                    [12] コスモポップファンクラブ(MAS)
-                </label>
-            </div>
-            <div class="format-example">
-                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-ltd"
-                    value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
-                <label class="form-check-label" for="format-example-choice-ltd">
-                    [12]コスモポップファンクラブ(MAS)
-                </label>
-            </div>
-            <div class="format-example">
-                <input class="form-check-input" type="radio" name="format-example-choice" id="format-example-choice-tdl"
-                    value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}">
-                <label class="form-check-label" for="format-example-choice-tdl">
-                    コスモポップファンクラブ[MAS12]
-                </label>
+        <div id="page-sdvx" class="page-content d-none">
+            <div class="row g-2">
+                <label for="format-example"><b>フォーマット</b></label>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-t" value="\{Title}" checked>
+                    <label class="form-check-label" for="format-example-choice-t">
+                        大宇宙ステージ
+                    </label>
+                </div>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-lstd"
+                        value="\{DiffBegin}[\{Level}] \{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
+                    <label class="form-check-label" for="format-example-choice-lstd">
+                        [17] 大宇宙ステージ(EXH)
+                    </label>
+                </div>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-ltd"
+                        value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}\{DiffBegin}(\{DIFF})\{DiffEnd}">
+                    <label class="form-check-label" for="format-example-choice-ltd">
+                        [17]大宇宙ステージ(EXH)
+                    </label>
+                </div>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-tdl" value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}">
+                    <label class="form-check-label" for="format-example-choice-tdl">
+                        大宇宙ステージ[EXH17]
+                    </label>
+                </div>
             </div>
         </div>
 
