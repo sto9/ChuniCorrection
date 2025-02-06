@@ -23,14 +23,71 @@ function switchLayout(direc) {
 
 const DIFFS = [["EXP", "MAS", "ULT"], ["EXH", "MXM", "INF", "GRV", "HVN", "VVD", "XCD"]];
 
-function switchGamemode(new_gamemode) {
-    gamemode = new_gamemode;
+function toLongDiff(diff) {
+    // if (diff === "EXP") return "expert";
+    // if (diff === "MAS") return "master";
+    // if (diff === "ULT") return "ultima";
+    if (diff === "EXH") return "exhaust";
+    if (diff === "MXM") return "maximum";
+    if (diff === "INF") return "infinite";
+    if (diff === "GRV") return "gravity";
+    if (diff === "HVN") return "heavenly";
+    if (diff === "VVD") return "vivid";
+    if (diff === "XCD") return "exceed";
+    console.log("toLongDiff error");
+    console.assert(false);
+}
+function toShortDiff(diff) {
+    // if (diff === "expert") return "EXP";
+    // if (diff === "master") return "MAS";
+    // if (diff === "ultima") return "ULT";
+    if (diff === "exhaust") return "EXH";
+    if (diff === "maximum") return "MXM";
+    if (diff === "infinite") return "INF";
+    if (diff === "gravity") return "GRV";
+    if (diff === "heavenly") return "HVN";
+    if (diff === "vivid") return "VVD";
+    if (diff === "exceed") return "XCD";
+    console.log("toShortDiff error");
+    console.assert(false);
+}
+
+function switchGamemode(gamemode_str) {
+    if (gamemode_str === "chunithm") {
+        gamemode = GAMEMODE_CHUNITHM;
+    } else if (gamemode_str === "sdvx") {
+        gamemode = GAMEMODE_SDVX;
+    } else {
+        console.log("switchGamemode error");
+        console.assert(false);
+    }
+
     // フォーマットの凡例を変更
+    let title = "";
+    let diff = "";
+    let level = "";
+    let data = {};
+    if (gamemode === GAMEMODE_CHUNITHM) {
+        title = "コスモポップファンクラブ";
+        diff = "MAS";
+        level = "12";
+    } else if (gamemode === GAMEMODE_SDVX) {
+        title = "大宇宙ステージ";
+        diff = "EXH";
+        level = "17";
+    }
+    data["title"] = title;
+    data[diff] = level;
+    let format_example_labels = document.getElementsByClassName('format-example-label');
+    for (let format_example_label of format_example_labels) {
+        const format = document.getElementById(format_example_label.getAttribute("for")).value;
+        format_example_label.innerHTML = getTargetSentence(data, format, diff);
+    }
 }
 
 let all_music_data = [[], []];
 
-async function loadAllMusicsData(gamemode) {
+async function loadAllMusicsData() {
     if (gamemode === GAMEMODE_CHUNITHM) {
         const URL = "https://api.chunirec.net/2.0/music/showall.json?region=jp2&token=0cc61074c6f6ccf038b3c62be917be3ef317458be49bd3cd68c78a80b4d024b144db12e7f941a8c043f3ac8b4b0c610740e8960baf53f5469de414d6588fa6b5";
         const res = await fetch(URL);
@@ -39,9 +96,19 @@ async function loadAllMusicsData(gamemode) {
             if (Object.keys(data["data"]).includes("WE"))
                 continue;
             let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data["data"]).includes(diff));
-            let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, { level: data["data"][diff]["level"] }]));
+            let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, String(data["data"][diff]["level"])]));
+            console.log(diff_json);
+            for (let diff of exist_diffs) {
+                console.log(diff);
+                console.log(diff_json[diff]);
+                if (diff_json[diff].slice(-2) === ".5") {
+                    diff_json[diff] = diff_json[diff].slice(0, -2) + "+";
+                }
+            }
+            console.log(diff_json);
+
             all_music_data[gamemode].push({
-                title: data["title"],
+                title: String(data["meta"]["title"]),
                 ...diff_json
             });
         }
@@ -49,12 +116,12 @@ async function loadAllMusicsData(gamemode) {
         const URL = "https://nearnoah.net/api/getTrackData.json";
         const res = await fetch(URL);
         let musics_json = await res.json();
-        const DIFFS_LONG = ["exhaust", "maximum", "infinite", "gravity", "heavenly", "vivid", "exceed"];
         for (let data of musics_json) {
-            let exist_diffs = DIFFS_LONG.filter(diff => Object.keys(data["data"]).includes(diff));
-            let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, { level: data[diff]["level"] }]));
+            let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data).includes(toLongDiff(diff)));
+            console.log(exist_diffs);
+            let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, { level: String(data[toLongDiff(diff)]["level"]) }]));
             all_music_data[gamemode].push({
-                title: data["title"],
+                title: String(data["title"]),
                 ...diff_json
             });
         }
@@ -62,6 +129,7 @@ async function loadAllMusicsData(gamemode) {
         console.log("loadAllMusicsData error");
         console.assert(false);
     }
+    console.log(all_music_data[gamemode]);
 }
 
 // クッキーを読み込み、設定を反映
@@ -74,7 +142,7 @@ function saveCookie() {
     // 後で書く
 }
 
-const DIFFS_OR_EMPTY = ["EXP", "MAS", "ULT", ""];
+const DIFFS_OR_EMPTY = [[...DIFFS[0], ""], [...DIFFS[1], ""]];
 const SYMBOL_TITLE = "\\{Title}";
 const SYMBOL_LEVEL = "\\{Level}";
 const SYMBOL_DIFF_UPPER = "\\{DIFF}";
@@ -202,7 +270,7 @@ function getTargetSentence(data, format, diff) {
     for (let i = 0; i < format.length;) {
         if (format[i] == "\\") {
             if (isMatchSymbol(format, i, SYMBOL_TITLE)) {
-                target_sentence += data["meta"]["title"];
+                target_sentence += data["title"];
                 i += SYMBOL_TITLE.length;
             } else if (isMatchSymbol(format, i, SYMBOL_DIFF_BEGIN)) {
                 if (diff === "") {
@@ -217,11 +285,7 @@ function getTargetSentence(data, format, diff) {
             }
             else if (isMatchSymbol(format, i, SYMBOL_LEVEL)) {
                 if (diff !== "") {
-                    let level = String(data["data"][diff]["level"]);
-                    if (level.slice(-2) === ".5") {
-                        level = level.slice(0, -2) + "+";
-                    }
-                    target_sentence += level;
+                    target_sentence += data[diff];
                 }
                 i += SYMBOL_LEVEL.length;
             } else if (isMatchSymbol(format, i, SYMBOL_DIFF_UPPER)) {
@@ -252,22 +316,10 @@ function getTargetSentence(data, format, diff) {
 function getMostLikelyDiff(sentence, data) {
     let lower_title = sentence.toLowerCase();
     let candidate_diff_and_pos = [];
-    for (let ult_like of ULT_LIKE) {
-        let pos = lower_title.indexOf(ult_like);
+    for(let diff of DIFFS[gamemode].map(diff => diff.toLowerCase())) {
+        let pos = lower_title.indexOf(diff);
         if (pos !== -1) {
-            candidate_diff_and_pos.push(["ULT", pos]);
-        }
-    }
-    for (let mas_like of MAS_LIKE) {
-        let pos = lower_title.indexOf(mas_like);
-        if (pos !== -1) {
-            candidate_diff_and_pos.push(["MAS", pos]);
-        }
-    }
-    for (let exp_like of EXP_LIKE) {
-        let pos = lower_title.indexOf(exp_like);
-        if (pos !== -1) {
-            candidate_diff_and_pos.push(["EXP", pos]);
+            candidate_diff_and_pos.push([diff, pos]);
         }
     }
 
@@ -275,13 +327,13 @@ function getMostLikelyDiff(sentence, data) {
         // 一番右にあるものを選ぶ
         candidate_diff_and_pos.sort((a, b) => b[1] - a[1]);
         let res = candidate_diff_and_pos[0][0];
-        if (data["data"].hasOwnProperty(res)) {
+        if (data.hasOwnProperty(res)) {
             return res;
         }
     }
 
     // 存在しない難易度なら，最も高い難易度を選ぶ
-    if (data["data"].hasOwnProperty("ULT")) {
+    if (data.hasOwnProperty("ULT")) {
         return "ULT";
     }
     return "MAS";
@@ -290,12 +342,9 @@ function getMostLikelyDiff(sentence, data) {
 function getMostSimilarSentence(sentence, format) {
     let min_score = 1000000;
     let most_similar_data;
-    for (let data of all_music_data) {
-        for (let diff of DIFFS_OR_EMPTY) {
-            if (diff !== "" && !data["data"].hasOwnProperty(diff)) {
-                continue;
-            }
-            if (data["data"].hasOwnProperty("WE")) {
+    for (let data of all_music_data[gamemode]) {
+        for (let diff of DIFFS_OR_EMPTY[gamemode]) {
+            if (diff !== "" && !data.hasOwnProperty(diff)) {
                 continue;
             }
 
@@ -339,9 +388,10 @@ function setArrowHtml(sentences, results) {
     }
 }
 
-function init() {
-    if (all_music_data.length === 0) {
-        loadAllMusicsData();
+async function init() {
+    console.log("init");
+    if (all_music_data[gamemode].length === 0) {
+        await loadAllMusicsData();
     }
     let inputs = Array.from(document.querySelectorAll('.input-multi'))
         .filter(el => el.offsetParent !== null);
