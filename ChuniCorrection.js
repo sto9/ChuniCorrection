@@ -1,3 +1,7 @@
+const GAMEMODE_CHUNITHM = 0;
+const GAMEMODE_SDVX = 1;
+let gamemode = GAMEMODE_CHUNITHM;
+
 function switchLayout(direc) {
     if (direc === "yoko") {
         document.getElementById('in-out-yoko').style.display = "flex";
@@ -16,42 +20,48 @@ function switchLayout(direc) {
     }
 }
 
-const GAMEMODE_CHUNITHM = 0;
-const GAMEMODE_SDVX = 1;
+
 const DIFFS = [["EXP", "MAS", "ULT"], ["EXH", "MXM", "INF", "GRV", "HVN", "VVD", "XCD"]];
 
-function switchFormatExample(gamemode) {
-    if (gamemode === GAMEMODE_CHUNITHM) {
-
-    }
+function switchGamemode(new_gamemode) {
+    gamemode = new_gamemode;
+    // フォーマットの凡例を変更
 }
 
 let all_music_data = [[], []];
 
 async function loadAllMusicsData(gamemode) {
-    if (gamemode === 0) {
+    if (gamemode === GAMEMODE_CHUNITHM) {
         const URL = "https://api.chunirec.net/2.0/music/showall.json?region=jp2&token=0cc61074c6f6ccf038b3c62be917be3ef317458be49bd3cd68c78a80b4d024b144db12e7f941a8c043f3ac8b4b0c610740e8960baf53f5469de414d6588fa6b5";
         const res = await fetch(URL);
-        musics_json = await res.json();
+        let musics_json = await res.json();
         for (let data of musics_json) {
             if (Object.keys(data["data"]).includes("WE"))
                 continue;
-
-            levels_json = { ...Object.fromEntries(DIFFS.map(diff => [diff, { level: data["data"][diff]["level"] }])) };
-
-
-            all_music_data[0].push({
+            let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data["data"]).includes(diff));
+            let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, { level: data["data"][diff]["level"] }]));
+            all_music_data[gamemode].push({
                 title: data["title"],
-
+                ...diff_json
             });
         }
-    } else if (gamemode === 1) {
-
+    } else if (gamemode === GAMEMODE_SDVX) {
+        const URL = "https://nearnoah.net/api/getTrackData.json";
+        const res = await fetch(URL);
+        let musics_json = await res.json();
+        const DIFFS_LONG = ["exhaust", "maximum", "infinite", "gravity", "heavenly", "vivid", "exceed"];
+        for (let data of musics_json) {
+            let exist_diffs = DIFFS_LONG.filter(diff => Object.keys(data["data"]).includes(diff));
+            let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, { level: data[diff]["level"] }]));
+            all_music_data[gamemode].push({
+                title: data["title"],
+                ...diff_json
+            });
+        }
     } else {
         console.log("loadAllMusicsData error");
         console.assert(false);
     }
-
 }
 
 // クッキーを読み込み、設定を反映
