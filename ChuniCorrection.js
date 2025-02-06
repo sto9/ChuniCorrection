@@ -97,15 +97,11 @@ async function loadAllMusicsData() {
                 continue;
             let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data["data"]).includes(diff));
             let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, String(data["data"][diff]["level"])]));
-            console.log(diff_json);
             for (let diff of exist_diffs) {
-                console.log(diff);
-                console.log(diff_json[diff]);
                 if (diff_json[diff].slice(-2) === ".5") {
                     diff_json[diff] = diff_json[diff].slice(0, -2) + "+";
                 }
             }
-            console.log(diff_json);
 
             all_music_data[gamemode].push({
                 title: String(data["meta"]["title"]),
@@ -118,7 +114,6 @@ async function loadAllMusicsData() {
         let musics_json = await res.json();
         for (let data of musics_json) {
             let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data).includes(toLongDiff(diff)));
-            console.log(exist_diffs);
             let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, { level: String(data[toLongDiff(diff)]["level"]) }]));
             all_music_data[gamemode].push({
                 title: String(data["title"]),
@@ -129,7 +124,6 @@ async function loadAllMusicsData() {
         console.log("loadAllMusicsData error");
         console.assert(false);
     }
-    console.log(all_music_data[gamemode]);
 }
 
 // クッキーを読み込み、設定を反映
@@ -389,7 +383,6 @@ function setArrowHtml(sentences, results) {
 }
 
 async function init() {
-    console.log("init");
     if (all_music_data[gamemode].length === 0) {
         await loadAllMusicsData();
     }
