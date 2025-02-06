@@ -6,17 +6,24 @@ function switchLayout(direc) {
     if (direc === "yoko") {
         document.getElementById('in-out-yoko').style.display = "flex";
         document.getElementById('in-out-tate').style.display = "none";
-
+        document.getElementById('input-multi-yoko').value = document.getElementById('input-multi-tate').value;
+        document.getElementById('output-multi-yoko').value = document.getElementById('output-multi-tate').value;
     } else if (direc === "tate") {
         document.getElementById('in-out-tate').style.display = "block";
         document.getElementById('in-out-yoko').style.display = "none";
+        document.getElementById('input-multi-tate').value = document.getElementById('input-multi-yoko').value;
+        document.getElementById('output-multi-tate').value = document.getElementById('output-multi-yoko').value;
     } else {
         console.log("switchLayout error");
         console.assert(false);
     }
-    output_multis = document.getElementsByClassName('output-multi');
-    for (let i = 0; i < output_multis.length; i++) {
-        autoExpand(output_multis[i]);
+    let inputs = document.getElementsByClassName('input-multi');
+    let outputs = document.getElementsByClassName('output-multi');
+    for (let input of inputs) {
+        autoExpand(input);
+    }
+    for (let output of outputs) {
+        autoExpand(output);
     }
 }
 
@@ -114,7 +121,7 @@ async function loadAllMusicsData() {
         let musics_json = await res.json();
         for (let data of musics_json) {
             let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data).includes(toLongDiff(diff)));
-            let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, { level: String(data[toLongDiff(diff)]["level"]) }]));
+            let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, String(data[toLongDiff(diff)]["level"])]));
             all_music_data[gamemode].push({
                 title: String(data["title"]),
                 ...diff_json
@@ -310,8 +317,8 @@ function getTargetSentence(data, format, diff) {
 function getMostLikelyDiff(sentence, data) {
     let lower_title = sentence.toLowerCase();
     let candidate_diff_and_pos = [];
-    for(let diff of DIFFS[gamemode].map(diff => diff.toLowerCase())) {
-        let pos = lower_title.indexOf(diff);
+    for (let diff of DIFFS[gamemode]) {
+        let pos = lower_title.indexOf(diff.toLowerCase());
         if (pos !== -1) {
             candidate_diff_and_pos.push([diff, pos]);
         }
@@ -326,11 +333,14 @@ function getMostLikelyDiff(sentence, data) {
         }
     }
 
-    // 存在しない難易度なら，最も高い難易度を選ぶ
-    if (data.hasOwnProperty("ULT")) {
-        return "ULT";
+    // 難易度が見つからない場合、最も高い難易度を選ぶ
+    for (let i = DIFFS[gamemode].length - 1; i >= 0; i--) {
+        if (data.hasOwnProperty(DIFFS[gamemode][i])) {
+            return DIFFS[gamemode][i];
+        }
     }
-    return "MAS";
+    console.log("getMostLikelyDiff error");
+    console.assert(false);
 }
 
 function getMostSimilarSentence(sentence, format) {
@@ -383,21 +393,22 @@ function setArrowHtml(sentences, results) {
 }
 
 async function init() {
-    if (all_music_data[gamemode].length === 0) {
-        await loadAllMusicsData();
-    }
     let inputs = Array.from(document.querySelectorAll('.input-multi'))
         .filter(el => el.offsetParent !== null);
     console.assert(inputs.length === 1);
     let sentence_array_origin = String(inputs[0].value);
     let sentence_array = sentence_array_origin.split("\n");
     let format = document.querySelector('input[name="format-example-choice"]:checked')?.value;
-
     resetResult();
-    let output_tmp = Array.from(document.querySelectorAll('.output-multi'))
-        .filter(el => el.offsetParent !== null);
-    console.assert(output_tmp.length === 1);
-    let output_multi = output_tmp[0];
+    let outputs = Array.from(document.querySelectorAll('.output-multi'));
+
+    for (let output of outputs) {
+        output.value = "<Loading...>";
+    }
+
+    if (all_music_data[gamemode].length === 0) {
+        await loadAllMusicsData();
+    }
 
     let result_array = [];
     for (let sentence of sentence_array) {
@@ -405,14 +416,14 @@ async function init() {
         if (sentence !== "") {
             result = getMostSimilarSentence(sentence, format);
         }
-        output_multi.value += result + "\n";
         result_array.push(result);
     }
-    if (document.querySelector('input[name="layout-choice"]:checked')?.value === "yoko") {
-        setArrowHtml(sentence_array, result_array);
+    for (let output of outputs) {
+        output.value = result_array.join("\n");
+        autoExpand(output);
     }
-    output_multi.value = output_multi.value.slice(0, -1);
-    autoExpand(output_multi);
+
+    setArrowHtml(sentence_array, result_array);
 }
 
 function resetResult() {
@@ -422,10 +433,9 @@ function resetResult() {
     let output_multi = output_tmp[0];
     output_multi.value = "";
     autoExpand(output_multi);
-    if (document.querySelector('input[name="layout-choice"]:checked')?.value === "yoko") {
-        let arrows_dom = document.getElementById('arrows');
-        arrows_dom.innerHTML = "";
-    }
+
+    let arrows_dom = document.getElementById('arrows');
+    arrows_dom.innerHTML = "";
 }
 
 function deleteResult() {
