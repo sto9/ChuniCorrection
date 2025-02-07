@@ -17,10 +17,36 @@ function switchLayout(direc) {
         console.log("switchLayout error");
         console.assert(false);
     }
-    let inputs = document.getElementsByClassName('input-multi');
-    let outputs = document.getElementsByClassName('output-multi');
     autoExpand();
 }
+
+function setPlaceholder(format) {
+    let data1 = {
+        "title" : "曲名1",
+        "難易度" : "レベル"
+    };
+    let data2 = {
+        "title" : "曲名2",
+        "難易度" : "レベル"
+    };
+    let diff = "難易度";
+    let text1 = getTargetSentence(data1, format, diff);
+    let text2 = getTargetSentence(data2, format, diff);
+    for(let placeholder of document.getElementsByClassName('placeholder')) {
+        placeholder.innerHTML = text1 + "<br>" + text2 + "<br>...";
+    }
+}
+
+// クッキーを読み込み、設定を反映
+function loadCookie() {
+    // 後で書く
+}
+
+// 設定を保存
+function saveCookie() {
+    // 後で書く
+}
+
 
 
 const DIFFS = [["EXP", "MAS", "ULT"], ["EXH", "MXM", "INF", "GRV", "HVN", "VVD", "XCD"]];
@@ -141,16 +167,6 @@ async function loadAllMusicsData() {
         console.log("loadAllMusicsData error");
         console.assert(false);
     }
-}
-
-// クッキーを読み込み、設定を反映
-function loadCookie() {
-    // 後で書く
-}
-
-// 設定を保存
-function saveCookie() {
-    // 後で書く
 }
 
 const DIFFS_OR_EMPTY = [[...DIFFS[0], ""], [...DIFFS[1], ""]];
