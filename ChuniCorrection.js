@@ -22,29 +22,74 @@ function switchLayout(direc) {
 
 function setPlaceholder(format) {
     let data1 = {
-        "title" : "曲名1",
-        "難易度" : "レベル"
+        "title": "曲名1",
+        "難易度": "レベル"
     };
     let data2 = {
-        "title" : "曲名2",
-        "難易度" : "レベル"
+        "title": "曲名2",
+        "難易度": "レベル"
     };
     let diff = "難易度";
     let text1 = getTargetSentence(data1, format, diff);
     let text2 = getTargetSentence(data2, format, diff);
-    for(let placeholder of document.getElementsByClassName('placeholder')) {
+    for (let placeholder of document.getElementsByClassName('placeholder')) {
         placeholder.innerHTML = text1 + "<br>" + text2 + "<br>...";
     }
 }
 
 // クッキーを読み込み、設定を反映
 function loadCookie() {
-    // 後で書く
+    let settings_str = Cookies.get('settings');
+    if (settings_str === undefined) {
+        return;
+    }
+    let settings = JSON.parse(settings_str);
+
+    switchGamemode(settings["gamemode"]);
+    for (let nav of document.getElementsByClassName('gamemode')) {
+        if (nav.value === String(settings["gamemode"])) {
+            nav.classList.add('active');
+        } else {
+            nav.classList.remove('active');
+        }
+    }
+
+    for (let choice of document.getElementsByName('format-example-choice')) {
+        if (choice.id === settings["format-example-id"]) {
+            choice.checked = true;
+            setPlaceholder(choice.value);
+        } else {
+            choice.checked = false;
+        }
+    }
+
+    if (settings["layout-id"] === "layout-yoko") {
+        switchLayout("yoko");
+    } else {
+        switchLayout("tate");
+    }
+    for (let choice of document.getElementsByName('layout-choice')) {
+        if (choice.id === settings["layout-id"]) {
+            choice.checked = true;
+        } else {
+            choice.checked = false;
+        }
+    }
 }
 
 // 設定を保存
 function saveCookie() {
-    // 後で書く
+    Cookies.remove('settings');
+
+    let save_json = {
+        "version": document.getElementById('version').innerText,
+        "gamemode": gamemode,
+        "format-example-id": document.querySelector('input[name="format-example-choice"]:checked').id,
+        "layout-id": document.querySelector('input[name="layout-choice"]:checked').id
+    };
+
+    let save_str = JSON.stringify(save_json);
+    Cookies.set('settings', save_str, { expires: 60 });
 }
 
 
@@ -80,16 +125,8 @@ function toShortDiff(diff) {
     console.assert(false);
 }
 
-function switchGamemode(gamemode_str) {
-    if (gamemode_str === "chunithm") {
-        gamemode = GAMEMODE_CHUNITHM;
-    } else if (gamemode_str === "sdvx") {
-        gamemode = GAMEMODE_SDVX;
-    } else {
-        console.log("switchGamemode error");
-        console.assert(false);
-    }
-
+function switchGamemode(new_gamemode) {
+    gamemode = new_gamemode;
     // フォーマットの凡例を変更
     let title = "";
     let diff = "";
@@ -354,13 +391,36 @@ function getMostLikelyDiff(sentence, data) {
     }
 
     if (candidate_diff_and_pos.length !== 0) {
-        // 一番右にあるものを選ぶ
-        candidate_diff_and_pos.sort((a, b) => b[1] - a[1]);
+        // 一番左にあるものを選ぶ
+        // candidate_diff_and_pos.sort((a, b) => b[1] - a[1]); // 右の場合
+        candidate_diff_and_pos.sort((a, b) => a[1] - b[1]);
         let res = candidate_diff_and_pos[0][0];
         if (data.hasOwnProperty(res)) {
             return res;
         }
     }
+
+    // レべルの数値を見る
+    // 数値と+だけの文字列を取り出す
+    let nums = sentence.match(/[０-９0-9+＋]+/g) || [];
+    nums = nums.map(num => num.replace("＋", "+"));
+    nums = nums.map(num => num.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)))
+    console.log(nums);
+    // for(let ni = nums.length - 1; ni >= 0; ni--) {
+    for (let ni = 0; ni < nums.length; ni++) {
+        let num = nums[ni];
+        for (let di = DIFFS[gamemode].length - 1; di >= 0; di--) {
+            let diff = DIFFS[gamemode][di];
+            console.log(diff);
+            if (data.hasOwnProperty(diff) && data[diff] === num) {
+                return diff;
+            }
+        }
+    }
+
+
+    
+
 
     // 難易度が見つからない場合、最も高い難易度を選ぶ
     for (let i = DIFFS[gamemode].length - 1; i >= 0; i--) {
@@ -433,6 +493,8 @@ function setArrowHtml(sentences, results) {
 }
 
 async function init() {
+    saveCookie();
+
     let inputs = Array.from(document.querySelectorAll('.input-multi'))
         .filter(el => el.offsetParent !== null);
     console.assert(inputs.length === 1);
@@ -479,7 +541,7 @@ function resetResult() {
 
 function deleteResult() {
     let output_multis = document.getElementsByClassName('output-multi');
-    for(let output of output_multis) {
+    for (let output of output_multis) {
         output.value = "";
     }
     let arrows_dom = document.getElementById('arrows');

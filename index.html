@@ -17,7 +17,6 @@
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
 </head>
 
 <body>
@@ -44,10 +43,10 @@
     <!-- タブメニュー -->
     <ul class="nav nav-pills mb-3" id="pageTabs">
         <li class="nav-item">
-            <button class="nav-link gamemode active" value="chunithm">CHUNITHM</button>
+            <button class="nav-link gamemode active" value="0">CHUNITHM</button>
         </li>
         <li class="nav-item">
-            <button class="nav-link gamemode" value="sdvx">SDVX</button>
+            <button class="nav-link gamemode" value="1">SDVX</button>
         </li>
     </ul>
 
@@ -56,7 +55,7 @@
             button.addEventListener("click", function () {
                 document.querySelectorAll(".nav-link").forEach(btn => btn.classList.remove("active"));
                 button.classList.add("active");
-                switchGamemode(button.value);
+                switchGamemode(Number(button.value));
             });
         });
     </script>
@@ -74,7 +73,7 @@
                 <p id="music_and_diff_format_error" style="color:red;"></p>
             </div>
         </div> -->
-        <div id="page-chunithm" class="page-content">
+        <div class="page-content">
             <div class="row g-2">
                 <label for="format-example"><b>フォーマット</b></label>
                 <div class="format-example">
@@ -105,72 +104,71 @@
                     <label class="form-check-label format-example-label" for="format-example-choice-tdl"></label>
                 </div>
             </div>
-        </div>
 
-        <div class="mb-2">
-            <label class="mb-2" for="layout"><b>レイアウト</b></label>
-            <div class="d-flex">
-                <div class="form-check form-check-inline layout">
-                    <input class="form-check-input" type="radio" name="layout-choice" id="layout-tate" value="tate"
-                        checked onclick="switchLayout('tate');">
-                    <label class="form-check-label" for="layout-tate">上下(スマホ推奨)</label>
-                </div>
+            <div class="mb-4 border-bottom">
+                <label class="mb-2" for="layout"><b>レイアウト</b></label>
+                <div class="d-flex mb-4">
+                    <div class="form-check form-check-inline layout">
+                        <input class="form-check-input" type="radio" name="layout-choice" id="layout-tate" value="tate"
+                            checked onclick="switchLayout('tate');">
+                        <label class="form-check-label" for="layout-tate">上下(スマホ推奨)</label>
+                    </div>
 
-                <div class="form-check form-check-inline layout">
-                    <input class="form-check-input" type="radio" name="layout-choice" id="layout-yoko" value="yoko"
-                        onclick="switchLayout('yoko');">
-                    <label class="form-check-label" for="layout-yoko">左右(PC推奨)</label>
-                </div>
-            </div>
-        </div>
-
-        <!-- 縦並びの場合 -->
-        <div id="in-out-tate">
-            <!-- 上側のテキストボックス -->
-            <div class="row g-2">
-                <div class="col-12">
-                    <label for="input-multi-tate" class="form-label"><b>修正前</b></label>
-                    <div class="textarea-container">
-                        <textarea id="input-multi-tate" class="form-control input-multi auto-expand"></textarea>
-                        <div class="placeholder"></div>
+                    <div class="form-check form-check-inline layout">
+                        <input class="form-check-input" type="radio" name="layout-choice" id="layout-yoko" value="yoko"
+                            onclick="switchLayout('yoko');">
+                        <label class="form-check-label" for="layout-yoko">左右(PC推奨)</label>
                     </div>
                 </div>
             </div>
-            <!-- 下側のテキストボックス -->
-            <div class="row g-2">
-                <div class="col-12">
-                    <label for="output-multi-tate" class="form-label"><b>修正後</b></label>
-                    <textarea id="output-multi-tate" class="form-control output-multi auto-expand" rows="4"
+
+            <!-- 縦並びの場合 -->
+            <div id="in-out-tate">
+                <!-- 上側のテキストボックス -->
+                <div class="row g-2">
+                    <div class="col-12">
+                        <label for="input-multi-tate" class="form-label"><b>修正前</b></label>
+                        <div class="textarea-container">
+                            <textarea id="input-multi-tate" class="form-control input-multi auto-expand"></textarea>
+                            <div class="placeholder"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 下側のテキストボックス -->
+                <div class="row g-2">
+                    <div class="col-12">
+                        <label for="output-multi-tate" class="form-label"><b>修正後</b></label>
+                        <textarea id="output-multi-tate" class="form-control output-multi auto-expand" rows="4"
+                            readonly></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 横並びの場合 -->
+            <div id="in-out-yoko" class="row g-2" style="display:none">
+                <!-- 左側のテキストボックス -->
+                <div class="col-5">
+                    <label for="input-multi-yoko" class="form-label"><b>修正前</b></label>
+                    <div class="textarea-container">
+                        <textarea id="input-multi-yoko" class="form-control input-multi auto-expand"></textarea>
+                        <div class="placeholder"></div>
+                    </div>
+                </div>
+                <!-- 中央のテキストボックス -->
+                <div class="col-auto">
+                    <label for="arrows" class="form-label no-border" style="visibility:hidden">-</label>
+                    <p id="arrows" class="text-center form-control arrows"><br><br><br><br></p>
+                </div>
+                <!-- 右側のテキストボックス -->
+                <div class="col-5">
+                    <label for="output-multi-yoko" class="form-label"><b>修正後</b></label>
+                    <textarea id="output-multi-yoko" class="form-control output-multi auto-expand" rows="4"
                         readonly></textarea>
                 </div>
             </div>
-        </div>
 
-        <!-- 横並びの場合 -->
-        <div id="in-out-yoko" class="row g-2" style="display:none">
-            <!-- 左側のテキストボックス -->
-            <div class="col-5">
-                <label for="input-multi-yoko" class="form-label"><b>修正前</b></label>
-                <div class="textarea-container">
-                    <textarea id="input-multi-yoko" class="form-control input-multi auto-expand"></textarea>
-                    <div class="placeholder"></div>
-                </div>
-            </div>
-            <!-- 中央のテキストボックス -->
-            <div class="col-auto">
-                <label for="arrows" class="form-label no-border" style="visibility:hidden">-</label>
-                <p id="arrows" class="text-center form-control arrows"><br><br><br><br></p>
-            </div>
-            <!-- 右側のテキストボックス -->
-            <div class="col-5">
-                <label for="output-multi-yoko" class="form-label"><b>修正後</b></label>
-                <textarea id="output-multi-yoko" class="form-control output-multi auto-expand" rows="4"
-                    readonly></textarea>
-            </div>
-        </div>
-
-        <!-- 入力 -->
-        <!-- <div class="row g-2">
+            <!-- 入力 -->
+            <!-- <div class="row g-2">
             <div class="col-12">
                 <label class="form-label" for="input"> 校正したい文字列 </label>
                 <input type="text" class="form-control" id="input" minlength="1" maxlength="70">
@@ -180,21 +178,23 @@
             </div>
         </div> -->
 
-        <div class="row">
-            <div class="col-auto">
-                <input type="button" class="btn btn-primary" value="表示" onclick="init();" />
+            <div class="row">
+                <div class="col-auto">
+                    <input type="button" class="btn btn-primary" value="表示" onclick="init();" />
+                </div>
+                <div class="col-auto">
+                    <input type="button" class="btn btn-danger" value="削除" onclick="deleteResult();" />
+                </div>
             </div>
-            <div class="col-auto">
-                <input type="button" class="btn btn-danger" value="削除" onclick="deleteResult();" />
-            </div>
-        </div>
 
-        <div class="row">
-            <div class="col-12">
-                <p id="test"></p>
+            <div class="row">
+                <div class="col-12">
+                    <p id="test"></p>
+                </div>
             </div>
-        </div>
 
+            <p id="version-container" class="text-end">Version <span id="version">1.0.0</span></p>
+        </div>
     </footer>
 </body>
 
@@ -230,10 +230,10 @@
             input.addEventListener("focus", togglePlaceholder);
             input.addEventListener("blur", togglePlaceholder);
         }
-    });
 
-    switchGamemode("chunithm");
-    loadCookie();
+        switchGamemode(0);
+        loadCookie();
+    });
 </script>
 
 </html>
