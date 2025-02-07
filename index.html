@@ -36,13 +36,13 @@
                     </font>
                 </h1>
             </div>
-            <div class="col-auto">
+            <!-- <div class="col-auto">
                 <a href="https://github.com/sto9/ChuniCorrection#readme" class="header-help">
                     <font face="Verdana" size="2.5rem">
                         <b alt="help" border="0">Help</b>
                     </font>
                 </a>
-            </div>
+            </div> -->
 
         </div>
     </header>
@@ -102,6 +102,12 @@
                 </div>
                 <div class="format-example">
                     <input class="form-check-input" type="radio" name="format-example-choice"
+                        id="format-example-choice-lt"
+                        value="\{DiffBegin}[\{Level}]\{DiffEnd}\{Title}">
+                    <label class="form-check-label format-example-label" for="format-example-choice-lt"></label>
+                </div>
+                <div class="format-example">
+                    <input class="form-check-input" type="radio" name="format-example-choice"
                         id="format-example-choice-tdl" value="\{Title}\{DiffBegin}[\{DIFF}\{Level}]\{DiffEnd}">
                     <label class="form-check-label format-example-label" for="format-example-choice-tdl"></label>
                 </div>
@@ -131,14 +137,14 @@
             <div class="row g-2">
                 <div class="col-12">
                     <label for="input-multi-tate" class="form-label"><b>修正前</b></label>
-                    <textarea id="input-multi-tate" class="form-control input-multi" rows="4"></textarea>
+                    <textarea id="input-multi-tate" class="form-control input-multi auto-expand" rows="4"></textarea>
                 </div>
             </div>
             <!-- 下側のテキストボックス -->
             <div class="row g-2">
                 <div class="col-12">
                     <label for="output-multi-tate" class="form-label"><b>修正後</b></label>
-                    <textarea id="output-multi-tate" class="form-control output-multi" rows="4" readonly></textarea>
+                    <textarea id="output-multi-tate" class="form-control output-multi auto-expand" rows="4" readonly></textarea>
                 </div>
             </div>
         </div>
@@ -148,7 +154,7 @@
             <!-- 左側のテキストボックス -->
             <div class="col-5">
                 <label for="input-multi-yoko" class="form-label"><b>修正前</b></label>
-                <textarea id="input-multi-yoko" class="form-control input-multi" rows="4"></textarea>
+                <textarea id="input-multi-yoko" class="form-control input-multi auto-expand" rows="4"></textarea>
             </div>
             <!-- 中央のテキストボックス -->
             <div class="col-auto">
@@ -158,7 +164,7 @@
             <!-- 右側のテキストボックス -->
             <div class="col-5">
                 <label for="output-multi-yoko" class="form-label"><b>修正後</b></label>
-                <textarea id="output-multi-yoko" class="form-control output-multi" rows="4" readonly></textarea>
+                <textarea id="output-multi-yoko" class="form-control output-multi auto-expand" rows="4" readonly></textarea>
             </div>
         </div>
 

@@ -19,12 +19,7 @@ function switchLayout(direc) {
     }
     let inputs = document.getElementsByClassName('input-multi');
     let outputs = document.getElementsByClassName('output-multi');
-    for (let input of inputs) {
-        autoExpand(input);
-    }
-    for (let output of outputs) {
-        autoExpand(output);
-    }
+    autoExpand();
 }
 
 
@@ -119,12 +114,27 @@ async function loadAllMusicsData() {
         const URL = "https://nearnoah.net/api/getTrackData.json";
         const res = await fetch(URL);
         let musics_json = await res.json();
+
+        // 別名を読み込む
+        let alias_json = await fetch("./alias_sdvx.json")
+            .then(response => response.json());
+
         for (let data of musics_json) {
+            // NOTE: API にバグがあるため、手動で修正
+            if (data["title"] === "まみむめ?まるっと?まっしゅるーむ??") {
+                data["title"] = "まみむめ🍄まるっと🍄まっしゅるーむ🍄🍄";
+            }
+
             let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data).includes(toLongDiff(diff)));
             let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, String(data[toLongDiff(diff)]["level"])]));
+            let alias = {};
+            if (alias_json.hasOwnProperty(data["title"])) {
+                alias = { "alias": alias_json[data["title"]] };
+            }
             all_music_data[gamemode].push({
                 title: String(data["title"]),
-                ...diff_json
+                ...diff_json,
+                ...alias
             });
         }
     } else {
@@ -265,13 +275,16 @@ function calcDiffScore(s, t) {
     return score;
 }
 
-function getTargetSentence(data, format, diff) {
+function getTargetSentence(data, format, diff, alias = "") {
     let target_sentence = "";
     let diff_skip = false;
     for (let i = 0; i < format.length;) {
         if (format[i] == "\\") {
             if (isMatchSymbol(format, i, SYMBOL_TITLE)) {
-                target_sentence += data["title"];
+                if (alias === "")
+                    target_sentence += data["title"];
+                else
+                    target_sentence += alias;
                 i += SYMBOL_TITLE.length;
             } else if (isMatchSymbol(format, i, SYMBOL_DIFF_BEGIN)) {
                 if (diff === "") {
@@ -358,6 +371,17 @@ function getMostSimilarSentence(sentence, format) {
                 min_score = score;
                 most_similar_data = data;
             }
+
+            if (data.hasOwnProperty("alias")) {
+                for (let alias of data["alias"]) {
+                    let alias_sentence = getTargetSentence(data, format, diff, alias);
+                    let alias_score = calcDiffScore(sentence, alias_sentence);
+                    if (alias_score < min_score) {
+                        min_score = alias_score;
+                        most_similar_data = data;
+                    }
+                }
+            }
         }
     }
 
@@ -401,7 +425,6 @@ async function init() {
     let format = document.querySelector('input[name="format-example-choice"]:checked')?.value;
     resetResult();
     let outputs = Array.from(document.querySelectorAll('.output-multi'));
-
     for (let output of outputs) {
         output.value = "<Loading...>";
     }
@@ -420,10 +443,10 @@ async function init() {
     }
     for (let output of outputs) {
         output.value = result_array.join("\n");
-        autoExpand(output);
     }
 
     setArrowHtml(sentence_array, result_array);
+    autoExpand();
 }
 
 function resetResult() {
@@ -432,7 +455,7 @@ function resetResult() {
     console.assert(output_tmp.length === 1);
     let output_multi = output_tmp[0];
     output_multi.value = "";
-    autoExpand(output_multi);
+    autoExpand();
 
     let arrows_dom = document.getElementById('arrows');
     arrows_dom.innerHTML = "";
@@ -440,16 +463,27 @@ function resetResult() {
 
 function deleteResult() {
     let output_multis = document.getElementsByClassName('output-multi');
-    for (let i = 0; i < output_multis.length; i++) {
-        output_multis[i].value = "";
-        autoExpand(output_multis[i]);
+    for(let output of output_multis) {
+        output.value = "";
     }
-
     let arrows_dom = document.getElementById('arrows');
     arrows_dom.innerHTML = "<br><br><br><br>";
+    autoExpand();
 }
 
-function autoExpand(textarea) {
-    textarea.style.height = "auto"; // 高さをリセット
-    textarea.style.height = textarea.scrollHeight + "px"; // 必要な高さに調整
+function autoExpand() {
+    let textareas = document.getElementsByClassName('auto-expand');
+    let max_height = 0;
+    let max_lines = 0;
+    for (let textarea of textareas) {
+        textarea.style.height = "auto";
+        max_height = Math.max(max_height, textarea.scrollHeight);
+        let lines = textarea.value.split("\n").length;
+        max_lines = Math.max(max_lines, lines);
+    }
+    for (let textarea of textareas) {
+        textarea.style.height = max_height + "px";
+    }
+    let arrows = document.getElementById('arrows');
+    arrows.style.height = max_height + "px";
 }
