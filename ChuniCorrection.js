@@ -221,7 +221,7 @@ const MAS_LIKE = ["mas"];
 const EXP_LIKE = ["exp"];
 
 // const special_regex = /[ 　、。,.\[\]\'\"「」()（）《》【】\-～…・:!?！？”]/g;
-const special_regex = /[ 　、。,.［］『』\[\]'"「」()（）《》【】\-～…・:!?！？+]/gu;
+const special_regex = /[ 　、。,.［］『』\[\]'"「」()（）《》【】〚〛\-～…・:!?！？+]/gu;
 const space_bracket_regex = /[ 　［］\[\]()（）【】]/gu;
 
 const kanji_regex = /[\p{sc=Han}]/gu;
