@@ -133,7 +133,7 @@ function switchGamemode(new_gamemode) {
     let level = "";
     let data = {};
     if (gamemode === GAMEMODE_CHUNITHM) {
-        title = "コスモポップファンクラブ";
+        title = "光線チューニング";
         diff = "MAS";
         level = "12";
     } else if (gamemode === GAMEMODE_SDVX) {
@@ -405,7 +405,6 @@ function getMostLikelyDiff(sentence, data) {
     let nums = sentence.match(/[０-９0-9+＋]+/g) || [];
     nums = nums.map(num => num.replace("＋", "+"));
     nums = nums.map(num => num.replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0)))
-    console.log(nums);
     // for(let ni = nums.length - 1; ni >= 0; ni--) {
     for (let ni = 0; ni < nums.length; ni++) {
         let num = nums[ni];
@@ -417,10 +416,6 @@ function getMostLikelyDiff(sentence, data) {
             }
         }
     }
-
-
-    
-
 
     // 難易度が見つからない場合、最も高い難易度を選ぶ
     for (let i = DIFFS[gamemode].length - 1; i >= 0; i--) {
