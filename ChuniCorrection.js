@@ -1,3 +1,5 @@
+const VERSION = "1.1.2";
+
 const GAMEMODE_CHUNITHM = 0;
 const GAMEMODE_SDVX = 1;
 let gamemode = GAMEMODE_CHUNITHM;
@@ -82,7 +84,7 @@ function saveCookie() {
     Cookies.remove('settings');
 
     let save_json = {
-        "version": document.getElementById('version').innerText,
+        "version": VERSION,
         "gamemode": gamemode,
         "format-example-id": document.querySelector('input[name="format-example-choice"]:checked').id,
         "layout-id": document.querySelector('input[name="layout-choice"]:checked').id
