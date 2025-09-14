@@ -188,6 +188,8 @@ async function loadAllMusicsData() {
             // NOTE: API にバグがあるため、手動で修正
             if (data["title"] === "まみむめ?まるっと?まっしゅるーむ??") {
                 data["title"] = "まみむめ🍄まるっと🍄まっしゅるーむ🍄🍄";
+            } else if (data["title"] === "ARROW RAIN") {
+                data["title"] = "ARROW RAIN feat.ayame";
             }
 
             let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data).includes(toLongDiff(diff)));
