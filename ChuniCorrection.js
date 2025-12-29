@@ -3,6 +3,7 @@ const VERSION = "1.1.2";
 const GAMEMODE_CHUNITHM = 0;
 const GAMEMODE_SDVX = 1;
 let gamemode = GAMEMODE_CHUNITHM;
+let sdvx_last_modified = "";
 
 function switchLayout(direc) {
     if (direc === "yoko") {
@@ -129,6 +130,26 @@ function toShortDiff(diff) {
 
 function switchGamemode(new_gamemode) {
     gamemode = new_gamemode;
+
+    // SDVX更新日時の表示/非表示を切り替え
+    const updateNotice = document.getElementById('sdvx-update-notice');
+    if (updateNotice) {
+        if (gamemode === GAMEMODE_SDVX) {
+            updateNotice.style.display = 'block';
+            // 更新日時がまだ読み込まれていない場合は読み込む
+            if (!sdvx_last_modified) {
+                loadSDVXLastModified();
+            } else {
+                const lastModifiedSpan = document.getElementById('sdvx-last-modified');
+                if (lastModifiedSpan) {
+                    lastModifiedSpan.textContent = sdvx_last_modified;
+                }
+            }
+        } else {
+            updateNotice.style.display = 'none';
+        }
+    }
+
     // フォーマットの凡例を変更
     let title = "";
     let diff = "";
@@ -140,8 +161,8 @@ function switchGamemode(new_gamemode) {
         level = "12";
     } else if (gamemode === GAMEMODE_SDVX) {
         title = "大宇宙ステージ";
-        diff = "EXH";
-        level = "17";
+        diff = "GRV";
+        level = "19.2";
     }
     data["title"] = title;
     data[diff] = level;
@@ -153,6 +174,25 @@ function switchGamemode(new_gamemode) {
 }
 
 let all_music_data = [[], []];
+
+// SDVX更新日時のみを読み込む関数
+async function loadSDVXLastModified() {
+    try {
+        let json_data = await fetch("./sdvx_musics.json")
+            .then(response => response.json());
+        sdvx_last_modified = json_data.last_modified_at || "";
+
+        // 更新日時が読み込まれたので、SDVXページの場合は表示を更新
+        if (gamemode === GAMEMODE_SDVX) {
+            const lastModifiedSpan = document.getElementById('sdvx-last-modified');
+            if (lastModifiedSpan && sdvx_last_modified) {
+                lastModifiedSpan.textContent = sdvx_last_modified;
+            }
+        }
+    } catch (error) {
+        console.log("Error loading SDVX last modified:", error);
+    }
+}
 
 async function loadAllMusicsData() {
     if (gamemode === GAMEMODE_CHUNITHM) {
@@ -176,22 +216,26 @@ async function loadAllMusicsData() {
             });
         }
     } else if (gamemode === GAMEMODE_SDVX) {
-        const URL = "https://nearnoah.net/api/getTrackData.json";
-        const res = await fetch(URL);
-        let musics_json = await res.json();
+        // ローカルのJSONファイルから楽曲データを読み込む
+        let json_data = await fetch("./sdvx_musics.json")
+            .then(response => response.json());
+
+        let musics_json = json_data.songs;
+        sdvx_last_modified = json_data.last_modified_at || "";  // 更新日時を保存
+
+        // 更新日時が読み込まれたので、SDVXページの場合は表示を更新
+        if (gamemode === GAMEMODE_SDVX) {
+            const lastModifiedSpan = document.getElementById('sdvx-last-modified');
+            if (lastModifiedSpan && sdvx_last_modified) {
+                lastModifiedSpan.textContent = sdvx_last_modified;
+            }
+        }
 
         // 別名を読み込む
         let alias_json = await fetch("./alias_sdvx.json")
             .then(response => response.json());
 
         for (let data of musics_json) {
-            // NOTE: API にバグがあるため、手動で修正
-            if (data["title"] === "まみむめ?まるっと?まっしゅるーむ??") {
-                data["title"] = "まみむめ🍄まるっと🍄まっしゅるーむ🍄🍄";
-            } else if (data["title"] === "ARROW RAIN") {
-                data["title"] = "ARROW RAIN feat.ayame";
-            }
-
             let exist_diffs = DIFFS[gamemode].filter(diff => Object.keys(data).includes(toLongDiff(diff)));
             let diff_json = Object.fromEntries(exist_diffs.map(diff => [diff, String(data[toLongDiff(diff)]["level"])]));
             let alias = {};

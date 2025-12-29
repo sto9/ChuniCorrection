@@ -60,6 +60,12 @@
         </li>
     </ul>
 
+    <!-- SDVX更新日時の注釈 -->
+    <div id="sdvx-update-notice" style="display: none; color: red; font-size: 0.85em; margin-top: -10px; margin-bottom: 15px; padding: 0 15px;">
+        楽曲は手動更新のため最新でない場合があります。<br>
+        最終更新日：<span id="sdvx-last-modified">取得中...</span>
+    </div>
+
     <script>
         document.querySelectorAll(".nav-link").forEach(button => {
             button.addEventListener("click", function () {
