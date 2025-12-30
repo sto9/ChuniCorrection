@@ -25976,6 +25976,9 @@
             "exhaust": {
                 "level": 17.5
             },
+            "ultimate": {
+                "level": 20.9
+            },
             "gravity": {
                 "level": 19.3
             }
@@ -33495,5 +33498,5 @@
             }
         }
     ],
-    "last_modified_at": "2025/12/30 08:42:08"
+    "last_modified_at": "2025/12/30 09:28:34"
 }
