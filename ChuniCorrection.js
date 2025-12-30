@@ -97,7 +97,7 @@ function saveCookie() {
 
 
 
-const DIFFS = [["EXP", "MAS", "ULT"], ["EXH", "MXM", "INF", "GRV", "HVN", "VVD", "XCD"]];
+const DIFFS = [["EXP", "MAS", "ULT"], ["EXH", "MXM", "ULT", "INF", "GRV", "HVN", "VVD", "XCD"]];
 
 function toLongDiff(diff) {
     // if (diff === "EXP") return "expert";
@@ -105,6 +105,7 @@ function toLongDiff(diff) {
     // if (diff === "ULT") return "ultima";
     if (diff === "EXH") return "exhaust";
     if (diff === "MXM") return "maximum";
+    if (diff === "ULT") return "ultimate";
     if (diff === "INF") return "infinite";
     if (diff === "GRV") return "gravity";
     if (diff === "HVN") return "heavenly";
@@ -119,6 +120,7 @@ function toShortDiff(diff) {
     // if (diff === "ultima") return "ULT";
     if (diff === "exhaust") return "EXH";
     if (diff === "maximum") return "MXM";
+    if (diff === "ultimate") return "ULT";
     if (diff === "infinite") return "INF";
     if (diff === "gravity") return "GRV";
     if (diff === "heavenly") return "HVN";
